@@ -1,0 +1,17 @@
+{
+  "name": "toy-store",
+  "version": "1.0.0",
+  "description": "RESTful API with Node.js, Express and PostgreSQL",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
