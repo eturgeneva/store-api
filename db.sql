@@ -31,5 +31,6 @@ CREATE TABLE orders_products (
 
 CREATE TABLE carts (
     id INTEGER PRIMARY KEY,
-    customer_id INTEGER REFERENCES customers(id)
+    customer_id INTEGER REFERENCES customers(id),
+    ttl datetime
 );

@@ -1,75 +1,91 @@
 openapi: 3.0.4
 info:
   title: Toy Store API
-  description: A basic API for an online toy store.
   version: 1.0.0
-servers:
-- url: /
+  description: A basic API for an online toy store.
 paths:
   /products:
     summary: Get all of the products data.
-    description: This path is used to retrieve all of the products data from the products
+    description: >-
+      This path is used to retrieve all of the products data from the products
       database file.
     get:
-      tags:
-      - Product
       summary: Gets the products data
       description: Retrieve the products information from the products database.
       operationId: get
       responses:
-        "200":
-          description: Success
+        '200':
           content:
             application/json:
               examples:
                 products:
-                  value: "{\"orders\":[{\"name\":\"Carey Maynard\",\"id\":\"001\"\
-                    ,\"state\":\"pending\"},{\"name\":\"Angelo Ayala\",\"id\":\"002\"\
-                    ,\"state\":\"canceled\"},{\"name\":\"Regina Yates\",\"id\":\"\
-                    003\",\"state\":\"pending\"},{\"name\":\"Elliott Mcclure\",\"\
-                    id\":\"004\",\"state\":\"pending\"}]}"
-      x-swagger-router-controller: Product
-  /products/{id}:
-    summary: Get a product by ID.
-    description: Gets a product by a matching ID from the products database.
-    get:
-      tags:
-      - Product
-      summary: Get a product by ID.
-      description: This operation retrieves a product from the products database by
-        a matching ID.
-      operationId: getProduct
-      parameters:
-      - name: id
-        in: path
-        description: The id of the product.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
+                  value: >-
+                    {"orders":[{"name":"Carey
+                    Maynard","id":"001","state":"pending"},{"name":"Angelo
+                    Ayala","id":"002","state":"canceled"},{"name":"Regina
+                    Yates","id":"003","state":"pending"},{"name":"Elliott
+                    Mcclure","id":"004","state":"pending"}]}
           description: Success
-          content:
-            application/json:
-              examples:
-                order:
-                  value: {}
-        "404":
-          description: Product not found
+        '404':
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Not found
-      x-swagger-router-controller: Product
+          description: Products not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server error
+          description: Internal Server Error
+      tags:
+        - Product
+  /products/{id}:
+    summary: Get a product by ID.
+    description: Gets a product by a matching ID from the products database.
+    get:
+      summary: Get a product by ID.
+      description: >-
+        This operation retrieves a product from the products database by a
+        matching ID.
+      operationId: getProduct
+      parameters:
+        - name: id
+          in: path
+          description: The id of the product.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Product not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server error
+          description: Internal Server Error
+      tags:
+        - Product
   /orders:
     summary: Place a new order
     description: This path is used to place a new order to the orders database.
     post:
-      tags:
-      - Order
       summary: Places a new order
       description: This operation adds a new order to the orders database.
       operationId: placeOrder
@@ -78,223 +94,385 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Order"
+              $ref: '#/components/schemas/Order'
       responses:
-        "201":
-          description: Success
+        '201':
           content:
             application/json:
               examples:
                 Message:
                   value:
                     orderId: order_id
-        "400":
-          description: Invalid Argument Provided
+          description: Success
+        '400':
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Invalid Argument
-        "500":
-          description: Internal Server Error
+          description: Invalid Argument Provided
+        '500':
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Server Error
-      x-swagger-router-controller: Order
+          description: Internal Server Error
+      tags:
+        - Order
   /orders/{id}:
     get:
-      tags:
-      - Order
       summary: Gets an order by ID.
-      description: This operation retrieves an order from the orders database by a
-        matching id.
+      description: >-
+        This operation retrieves an order from the orders database by a matching
+        id.
       operationId: getOrder
       parameters:
-      - name: id
-        in: path
-        description: The id of the order.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: The id of the order.
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
-          description: Success
+        '200':
           content:
             application/json:
               examples:
                 order:
                   value: {}
-        "404":
-          description: Order not found
+          description: Success
+        '404':
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Not found
-      x-swagger-router-controller: Order
-    delete:
+          description: Order not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
       tags:
-      - Order
+        - Order
+    delete:
       summary: Cancels an order
-      description: This operation changes the order status in the orders database
-        to cancelled if possible.
+      description: This operation changes the order status in the orders database to cancelled if possible.
       operationId: cancelOrder
       parameters:
-      - name: id
-        in: path
-        description: The id of the order.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: The id of the order.
+          required: true
+          schema:
+            type: string
       responses:
-        "204":
-          description: Success
+        '204':
           content:
             text/plain; charset=utf-8:
               examples:
                 Message:
                   value: Success
-        "400":
-          description: Invalid Argument Provided
+          description: Success
+        '400':
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Invalid Argument
-      x-swagger-router-controller: Order
+          description: Invalid Argument Provided
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Order not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - Order
   /user:
     post:
-      tags:
-      - User
       summary: Creates a user without a specified ID
-      description: Creates a user without a specifired ID and adds it to the users
+      description: >-
+        Creates a user without a specifired ID and adds it to the users
         database.
       operationId: createUser
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: User
+        '201':
+          content:
+            application/json:
+              examples:
+                Message:
+                  value:
+                    userId: user_id
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - User
+  
+  # or user/me assumed by default
   /user/{id}:
     get:
-      tags:
-      - User
       summary: Gets a user by ID.
       description: Retrieves a user from the users database by a matching ID.
       operationId: getUser
       parameters:
-      - name: id
-        in: path
-        description: The id of the user.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: The id of the user.
+          required: true
+          schema:
+            type: string
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: User
-    put:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: User not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
       tags:
-      - User
+        - User
+    put:
       summary: Update a user by ID
-      description: Updates the details of a specific user in the users database matching
-        by user ID.
+      description: >-
+        Updates the details of a specific user in the users database matching by
+        user ID.
       operationId: updateUser
       parameters:
-      - name: id
-        in: path
-        description: The id of the user.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: The id of the user.
+          required: true
+          schema:
+            type: string
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: User
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: User not foun
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - User
   /carts:
     post:
-      tags:
-      - Cart
       summary: Create a new cart
-      description: "Creates a new, empty shopping cart for a user. This might involve\
-        \ generating a unique cart ID and associating it with the user (possibly through\
-        \ a session or user ID)."
+      description: >-
+        Creates a new, empty shopping cart for a user. This might involve
+        generating a unique cart ID and associating it with the user (possibly
+        through a session or user ID).
       operationId: createCart
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Cart
+        '201':
+          content:
+            application/json:
+              examples:
+                Message:
+                  value:
+                    cartId: cart_id
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - Cart
   /carts/{cartId}:
     get:
-      tags:
-      - Cart
       summary: Get a user cart
-      description: "Retrieves the contents of a specific cart, including the items,\
-        \ quantities, and potentially other related information like shipping address\
-        \ or pricing."
+      description: >-
+        Retrieves the contents of a specific cart, including the items,
+        quantities, and potentially other related information like shipping
+        address or pricing.
       operationId: getCart
       parameters:
-      - name: cartId
-        in: path
-        description: The id of the cart.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: cartId
+          in: path
+          description: The id of the cart.
+          required: true
+          schema:
+            type: string
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Cart
-    put:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Cart not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
       tags:
-      - Cart
+        - Cart
+    put:
       summary: Update Cart
-      description: "Modifies an existing item within the cart. This could involve\
-        \ adding a new item, changing the quantity of an existing item, or removing\
-        \ an item."
+      description: >-
+        Modifies an existing item within the cart. This could involve adding a
+        new item, changing the quantity of an existing item, or removing an
+        item.
       operationId: updateCart
       parameters:
-      - name: cartId
-        in: path
-        description: The id of the cart.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: cartId
+          in: path
+          description: The id of the cart.
+          required: true
+          schema:
+            type: string
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Cart
-    delete:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: User not foun
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
       tags:
-      - Cart
+        - Cart
+    delete:
       summary: Delete cart
       description: Deletes the entire cart from the carts database
       operationId: deleteCart
       parameters:
-      - name: cartId
-        in: path
-        description: The id of the cart.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: cartId
+          in: path
+          description: The id of the cart.
+          required: true
+          schema:
+            type: string
       responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Cart
+        '204':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: Success
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Cart not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - Cart
 components:
   schemas:
     Order:
