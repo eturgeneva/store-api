@@ -1,273 +1,300 @@
 openapi: 3.0.4
 info:
   title: Toy Store API
-  version: 1.0.0
   description: A basic API for an online toy store.
+  version: 1.0.0
+servers:
+- url: /
 paths:
   /products:
     summary: Get all of the products data.
-    description: >-
-      This path is used to retrieve all of the products data from the products
+    description: This path is used to retrieve all of the products data from the products
       database file.
     get:
+      tags:
+      - Product
       summary: Gets the products data
       description: Retrieve the products information from the products database.
-      operationId: get_products
+      operationId: get
       responses:
-        '200':
+        "200":
+          description: Success
           content:
             application/json:
               examples:
                 products:
-                  value: >-
-                    {"orders":[{"name":"Carey
-                    Maynard","id":"001","state":"pending"},{"name":"Angelo
-                    Ayala","id":"002","state":"canceled"},{"name":"Regina
-                    Yates","id":"003","state":"pending"},{"name":"Elliott
-                    Mcclure","id":"004","state":"pending"}]}
-          description: Success
-      tags:
-        - Products
+                  value: "{\"orders\":[{\"name\":\"Carey Maynard\",\"id\":\"001\"\
+                    ,\"state\":\"pending\"},{\"name\":\"Angelo Ayala\",\"id\":\"002\"\
+                    ,\"state\":\"canceled\"},{\"name\":\"Regina Yates\",\"id\":\"\
+                    003\",\"state\":\"pending\"},{\"name\":\"Elliott Mcclure\",\"\
+                    id\":\"004\",\"state\":\"pending\"}]}"
+      x-swagger-router-controller: Product
   /products/{id}:
     summary: Get a product by ID.
     description: Gets a product by a matching ID from the products database.
     get:
+      tags:
+      - Product
       summary: Get a product by ID.
-      description: >-
-        This operation retrieves a product from the products database by a
-        matching ID.
-      operationId: get_products_id
+      description: This operation retrieves a product from the products database by
+        a matching ID.
+      operationId: getProduct
       parameters:
-        - name: id
-          in: path
-          description: The id of the product.
-          required: true
-          schema:
-            type: string
+      - name: id
+        in: path
+        description: The id of the product.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
+          description: Success
           content:
             application/json:
               examples:
                 order:
                   value: {}
-          description: Success
-        '404':
+        "404":
+          description: Product not found
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Not found
-          description: Product not found
-      tags:
-        - Product by ID
+      x-swagger-router-controller: Product
   /orders:
     summary: Place a new order
     description: This path is used to place a new order to the orders database.
     post:
+      tags:
+      - Order
       summary: Places a new order
       description: This operation adds a new order to the orders database.
-      operationId: place_order
+      operationId: placeOrder
       requestBody:
         description: A new order object
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: "#/components/schemas/Order"
       responses:
-        '201':
+        "201":
+          description: Success
           content:
             application/json:
               examples:
                 Message:
                   value:
                     orderId: order_id
-          description: Success
-        '400':
+        "400":
+          description: Invalid Argument Provided
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Invalid Argument
-          description: Invalid Argument Provided
-      tags:
-        - New Order
+        "500":
+          description: Internal Server Error
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+      x-swagger-router-controller: Order
   /orders/{id}:
     get:
+      tags:
+      - Order
       summary: Gets an order by ID.
-      description: >-
-        This operation retrieves an order from the orders database by a matching
-        id.
-      operationId: get_order
+      description: This operation retrieves an order from the orders database by a
+        matching id.
+      operationId: getOrder
       parameters:
-        - name: id
-          in: path
-          description: The id of the order.
-          required: true
-          schema:
-            type: string
+      - name: id
+        in: path
+        description: The id of the order.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
+          description: Success
           content:
             application/json:
               examples:
                 order:
                   value: {}
-          description: Success
-        '404':
+        "404":
+          description: Order not found
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Not found
-          description: Order not found
-      tags:
-        - Order by ID
+      x-swagger-router-controller: Order
     delete:
+      tags:
+      - Order
       summary: Cancels an order
-      description: This operation changes the order status in the orders database to cancelled if possible.
-      operationId: cancel_order
+      description: This operation changes the order status in the orders database
+        to cancelled if possible.
+      operationId: cancelOrder
       parameters:
-        - name: id
-          in: path
-          description: The id of the order.
-          required: true
-          schema:
-            type: string
+      - name: id
+        in: path
+        description: The id of the order.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '204':
+        "204":
+          description: Success
           content:
             text/plain; charset=utf-8:
               examples:
                 Message:
                   value: Success
-          description: Success
-        '400':
+        "400":
+          description: Invalid Argument Provided
           content:
             text/plain; charset=utf-8:
               examples:
                 Error:
                   value: Invalid Argument
-          description: Invalid Argument Provided
-      tags:
-        - Cancel Order
+      x-swagger-router-controller: Order
   /user:
     post:
+      tags:
+      - User
       summary: Creates a user without a specified ID
-      description: >-
-        Creates a user without a specifired ID and adds it to the users
+      description: Creates a user without a specifired ID and adds it to the users
         database.
-      operationId: create_user
+      operationId: createUser
       responses:
         default:
           description: Default error sample response
-      tags:
-        - Create User
-  
-  # or user/me assumed by default
+      x-swagger-router-controller: User
   /user/{id}:
     get:
+      tags:
+      - User
       summary: Gets a user by ID.
       description: Retrieves a user from the users database by a matching ID.
-      operationId: get_user
+      operationId: getUser
       parameters:
-        - name: id
-          in: path
-          description: The id of the user.
-          required: true
-          schema:
-            type: string
+      - name: id
+        in: path
+        description: The id of the user.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
         default:
           description: Default error sample response
-      tags:
-        - User By ID
+      x-swagger-router-controller: User
     put:
+      tags:
+      - User
       summary: Update a user by ID
-      description: >-
-        Updates the details of a specific user in the users database matching by
-        user ID.
-      operationId: update_user
+      description: Updates the details of a specific user in the users database matching
+        by user ID.
+      operationId: updateUser
       parameters:
-        - name: id
-          in: path
-          description: The id of the user.
-          required: true
-          schema:
-            type: string
+      - name: id
+        in: path
+        description: The id of the user.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
         default:
           description: Default error sample response
-      tags:
-        - Update User
+      x-swagger-router-controller: User
   /carts:
     post:
+      tags:
+      - Cart
       summary: Create a new cart
-      description: >-
-        Creates a new, empty shopping cart for a user. This might involve
-        generating a unique cart ID and associating it with the user (possibly
-        through a session or user ID).
-      operationId: create_cart
+      description: "Creates a new, empty shopping cart for a user. This might involve\
+        \ generating a unique cart ID and associating it with the user (possibly through\
+        \ a session or user ID)."
+      operationId: createCart
       responses:
         default:
           description: Default error sample response
-      tags:
-        - Create Cart
+      x-swagger-router-controller: Cart
   /carts/{cartId}:
     get:
+      tags:
+      - Cart
       summary: Get a user cart
-      description: >-
-        Retrieves the contents of a specific cart, including the items,
-        quantities, and potentially other related information like shipping
-        address or pricing.
-      operationId: get_cart
+      description: "Retrieves the contents of a specific cart, including the items,\
+        \ quantities, and potentially other related information like shipping address\
+        \ or pricing."
+      operationId: getCart
       parameters:
-        - name: cartId
-          in: path
-          description: The id of the cart.
-          required: true
-          schema:
-            type: string
+      - name: cartId
+        in: path
+        description: The id of the cart.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
         default:
           description: Default error sample response
-      tags:
-        - Cart By ID
+      x-swagger-router-controller: Cart
     put:
+      tags:
+      - Cart
       summary: Update Cart
-      description: >-
-        Modifies an existing item within the cart. This could involve adding a
-        new item, changing the quantity of an existing item, or removing an
-        item.
-      operationId: update_cart
+      description: "Modifies an existing item within the cart. This could involve\
+        \ adding a new item, changing the quantity of an existing item, or removing\
+        \ an item."
+      operationId: updateCart
       parameters:
-        - name: cartId
-          in: path
-          description: The id of the cart.
-          required: true
-          schema:
-            type: string
+      - name: cartId
+        in: path
+        description: The id of the cart.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
         default:
           description: Default error sample response
-      tags:
-        - Update Cart
+      x-swagger-router-controller: Cart
     delete:
+      tags:
+      - Cart
       summary: Delete cart
       description: Deletes the entire cart from the carts database
-      operationId: delete_cart
+      operationId: deleteCart
       parameters:
-        - name: cartId
-          in: path
-          description: The id of the cart.
-          required: true
-          schema:
-            type: string
+      - name: cartId
+        in: path
+        description: The id of the cart.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
         default:
           description: Default error sample response
-      tags:
-        - Delete Cart
+      x-swagger-router-controller: Cart
 components:
   schemas:
     Order:
