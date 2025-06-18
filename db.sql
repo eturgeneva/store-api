@@ -15,19 +15,21 @@ CREATE TABLE products (
     price_cents INTEGER
 );
 
--- CREATE TABLE orders (
---     id INTEGER PRIMARY KEY,
---     customer_id INTEGER REFERENCES customers(id)
--- );
-
-CREATE TABLE order_details (
+CREATE TABLE orders (
     id INTEGER PRIMARY KEY,
-    order_id INTEGER REFERENCES orders(id),
-    quantity INTEGER,
-    total_price_cents INTEGER
+    customer_id INTEGER REFERENCES customers(id),
+    placed_at datetime,
+    status varchar(100)
 );
 
-CREATE TABLE orders_customers (
-    order_id INTEGER REFERENCES order_details(id),
+CREATE TABLE orders_products (
+    product_id INTEGER REFERENCES products(id),
+    order_id INTEGER REFERENCES orders(id),
+    quantity INTEGER,
+    price_cents INTEGER
+);
+
+CREATE TABLE carts (
+    id INTEGER PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id)
 );
