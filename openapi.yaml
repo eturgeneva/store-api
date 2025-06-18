@@ -1,0 +1,283 @@
+openapi: 3.0.4
+info:
+  title: Toy Store API
+  version: 1.0.0
+  description: A basic API for an online toy store.
+paths:
+  /products:
+    summary: Get all of the products data.
+    description: >-
+      This path is used to retrieve all of the products data from the products
+      database file.
+    get:
+      summary: Gets the products data
+      description: Retrieve the products information from the products database.
+      operationId: get_products
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                products:
+                  value: >-
+                    {"orders":[{"name":"Carey
+                    Maynard","id":"001","state":"pending"},{"name":"Angelo
+                    Ayala","id":"002","state":"canceled"},{"name":"Regina
+                    Yates","id":"003","state":"pending"},{"name":"Elliott
+                    Mcclure","id":"004","state":"pending"}]}
+          description: Success
+      tags:
+        - Products
+  /products/{id}:
+    summary: Get a product by ID.
+    description: Gets a product by a matching ID from the products database.
+    get:
+      summary: Get a product by ID.
+      description: >-
+        This operation retrieves a product from the products database by a
+        matching ID.
+      operationId: get_products_id
+      parameters:
+        - name: id
+          in: path
+          description: The id of the product.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Product not found
+      tags:
+        - Product by ID
+  /orders:
+    summary: Place a new order
+    description: This path is used to place a new order to the orders database.
+    post:
+      summary: Places a new order
+      description: This operation adds a new order to the orders database.
+      operationId: place_order
+      requestBody:
+        description: A new order object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                Message:
+                  value:
+                    orderId: order_id
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - New Order
+  /orders/{id}:
+    get:
+      summary: Gets an order by ID.
+      description: >-
+        This operation retrieves an order from the orders database by a matching
+        id.
+      operationId: get_order
+      parameters:
+        - name: id
+          in: path
+          description: The id of the order.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Order not found
+      tags:
+        - Order by ID
+    delete:
+      summary: Cancels an order
+      description: This operation changes the order status in the orders database to cancelled if possible.
+      operationId: cancel_order
+      parameters:
+        - name: id
+          in: path
+          description: The id of the order.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Message:
+                  value: Success
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+      tags:
+        - Cancel Order
+  /user:
+    post:
+      summary: Creates a user without a specified ID
+      description: >-
+        Creates a user without a specifired ID and adds it to the users
+        database.
+      operationId: create_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Create User
+  
+  # or user/me assumed by default
+  /user/{id}:
+    get:
+      summary: Gets a user by ID.
+      description: Retrieves a user from the users database by a matching ID.
+      operationId: get_user
+      parameters:
+        - name: id
+          in: path
+          description: The id of the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - User By ID
+    put:
+      summary: Update a user by ID
+      description: >-
+        Updates the details of a specific user in the users database matching by
+        user ID.
+      operationId: update_user
+      parameters:
+        - name: id
+          in: path
+          description: The id of the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Update User
+  /carts:
+    post:
+      summary: Create a new cart
+      description: >-
+        Creates a new, empty shopping cart for a user. This might involve
+        generating a unique cart ID and associating it with the user (possibly
+        through a session or user ID).
+      operationId: create_cart
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Create Cart
+  /carts/{cartId}:
+    get:
+      summary: Get a user cart
+      description: >-
+        Retrieves the contents of a specific cart, including the items,
+        quantities, and potentially other related information like shipping
+        address or pricing.
+      operationId: get_cart
+      parameters:
+        - name: cartId
+          in: path
+          description: The id of the cart.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Cart By ID
+    put:
+      summary: Update Cart
+      description: >-
+        Modifies an existing item within the cart. This could involve adding a
+        new item, changing the quantity of an existing item, or removing an
+        item.
+      operationId: update_cart
+      parameters:
+        - name: cartId
+          in: path
+          description: The id of the cart.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Update Cart
+    delete:
+      summary: Delete cart
+      description: Deletes the entire cart from the carts database
+      operationId: delete_cart
+      parameters:
+        - name: cartId
+          in: path
+          description: The id of the cart.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Delete Cart
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        state:
+          type: string
+      xml:
+        name: Order
