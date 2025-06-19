@@ -1,5 +1,5 @@
 CREATE TABLE customers (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     first_name varchar(50),
     last_name varchar(50),
     email varchar(100),
@@ -9,14 +9,14 @@ CREATE TABLE customers (
 );
 
 CREATE TABLE products (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name varchar(100),
     brand varchar(100),
     price_cents INTEGER
 );
 
 CREATE TABLE orders (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id),
     placed_at datetime,
     status varchar(100)
@@ -30,7 +30,7 @@ CREATE TABLE orders_products (
 );
 
 CREATE TABLE carts (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id),
     ttl datetime
 );
