@@ -34,3 +34,9 @@ CREATE TABLE carts (
     customer_id INTEGER REFERENCES customers(id),
     ttl datetime
 );
+
+-- Importing a products csv
+COPY products (name, brand, price_cents)
+FROM 'db_products.csv'
+DELIMITER ','
+CSV HEADER;
