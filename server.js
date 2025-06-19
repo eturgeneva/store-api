@@ -10,6 +10,7 @@ const PORT = 3000;
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 
+// Passport needs the session middleware to be initialized first, otherwise req.isAuthenticated() and req.user won’t work properly across requests.
 // Session middleware:
 app.use(	
   session({	
@@ -21,6 +22,8 @@ app.use(
 // THEN initialize Passport	
 app.use(passport.initialize());	
 app.use(passport.session());	
+
+app.use(logReqObject);
 
 // Google Strategy
 passport.use(new GoogleStrategy({
@@ -93,3 +96,12 @@ app.get('/oauth2/redirect/google',
 app.listen(PORT, () => {
     console.log(`App running on http://localhost:${PORT}`);
 })
+
+function logReqObject(req, res, next) {
+    // console.log('req object', req);
+    if (req) {
+        console.log('req object', req.isAuthenticated());
+        next();
+    }
+    next();
+}
