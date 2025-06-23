@@ -38,8 +38,8 @@ app.use(logReqestStatus);
 passport.use(new GoogleStrategy({
     clientID: process.env['GOOGLE_CLIENT_ID'],
     clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-    // callbackURL: 'http://localhost:3000',
-    callbackURL: 'http://localhost:3000/oauth2/redirect/google',
+    callbackURL: 'http://localhost:3000',
+    // callbackURL: 'http://localhost:3000/oauth2/redirect/google',
     scope: [ 'profile' ],
     state: true
   },
