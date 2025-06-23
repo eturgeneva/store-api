@@ -8,6 +8,13 @@ CREATE TABLE customers (
     password varchar(50)
 );
 
+CREATE TABLE federated_credentials (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(id),
+    provider varchar(100),
+    subject varchar(100)
+);
+
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name varchar(100) UNIQUE,
