@@ -38,8 +38,8 @@ app.use(logReqestStatus);
 passport.use(new GoogleStrategy({
     clientID: process.env['GOOGLE_CLIENT_ID'],
     clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-    callbackURL: 'http://localhost:3000',
-    // callbackURL: 'http://localhost:3000/oauth2/redirect/google',
+    // callbackURL: 'http://localhost:3000',
+    callbackURL: 'http://localhost:3000/oauth2/redirect/google',
     scope: [ 'profile' ],
     state: true
   },
@@ -111,7 +111,7 @@ app.get('/login/google', passport.authenticate('google'));
 app.get('/oauth2/redirect/google',
   passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
   function(req, res) {
-    res.redirect('/');
+    // res.redirect('/');
 });
 
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
