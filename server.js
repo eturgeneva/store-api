@@ -32,18 +32,20 @@ app.use(passport.session());
 
 app.use(logReqestStatus);
 
-// SQLite Setup
+// Postgres Setup
 
 // Google Strategy
 passport.use(new GoogleStrategy({
     clientID: process.env['GOOGLE_CLIENT_ID'],
     clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-    callbackURL: 'http://localhost:3000',
+    // callbackURL: 'http://localhost:3000',
+    callbackURL: 'http://localhost:3000/oauth2/redirect/google',
     scope: [ 'profile' ],
     state: true
   },
   async function verify(accessToken, refreshToken, profile, cb) {
     try {
+      console.log("Google profile:", profile);
       // Check if federated credential exists
       const credResult = await pool.query(
         'SELECT * FROM federated_credentials WHERE provider = $1 AND subject = $2',
@@ -66,7 +68,7 @@ passport.use(new GoogleStrategy({
         return cb(null, user);
       } else {
         // Existing user: fetch from users
-        const user_id = credResult.rows[0].user_id;
+        const user_id = credResult.rows[0].customer_id;
         const userResult = await pool.query(
           'SELECT id, username FROM customers WHERE id = $1',
           [user_id]
@@ -132,7 +134,7 @@ function checkIfAuthenticated(req, res, next) {
     if (req && req.isAuthenticated()) {
         next();
     } else {
-        console.log('Please login');
+        console.log('Please login upd');
         res.redirect('/login');
     }
 }
