@@ -2,10 +2,24 @@ require("dotenv").config();
 const express = require('express');
 const session = require("express-session");
 const passport = require("passport");
+const { Pool } = require('pg');
 const GoogleStrategy = require('passport-google-oauth20');
 
 const app = express();
 const PORT = 3000;
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Optional:
+  // ssl: { rejectUnauthorized: false } // for Heroku or secured environments
+});
+// const pool = new Pool({
+//   user: 'me',
+//   host: 'localhost',
+//   database: 'api',
+//   password: 'password',
+//   port: 5432,
+// });
 
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
