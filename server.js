@@ -13,13 +13,6 @@ const pool = new Pool({
   // Optional:
   // ssl: { rejectUnauthorized: false } // for Heroku or secured environments
 });
-// const pool = new Pool({
-//   user: 'me',
-//   host: 'localhost',
-//   database: 'api',
-//   password: 'password',
-//   port: 5432,
-// });
 
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
@@ -49,46 +42,43 @@ passport.use(new GoogleStrategy({
     scope: [ 'profile' ],
     state: true
   },
-  function verify(accessToken, refreshToken, profile, cb) {
-    db.get('SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?', [
-      'https://accounts.google.com',
-      profile.id
-    ], function(err, cred) {
-      if (err) { return cb(err); }
-      
-      if (!cred) {
-        // The account at Google has not logged in to this app before.  Create a
-        // new user record and associate it with the Google account.
-        db.run('INSERT INTO users (name) VALUES (?)', [
-          profile.displayName
-        ], function(err) {
-          if (err) { return cb(err); }
-          
-          var id = this.lastID;
-          db.run('INSERT INTO federated_credentials (user_id, provider, subject) VALUES (?, ?, ?)', [
-            id,
-            'https://accounts.google.com',
-            profile.id
-          ], function(err) {
-            if (err) { return cb(err); }
-            
-            var user = {
-              id: id,
-              name: profile.displayName
-            };
-            return cb(null, user);
-          });
-        });
+  async function verify(accessToken, refreshToken, profile, cb) {
+    try {
+      // Check if federated credential exists
+      const credResult = await pool.query(
+        'SELECT * FROM federated_credentials WHERE provider = $1 AND subject = $2',
+        ['https://accounts.google.com', profile.id]
+      );
+
+      // New user insert
+      if (credResult.rows.length === 0) {
+        const newUser = await pool.query(
+          'INSERT INTO customers (username) VALUES ($1) RETURNING id, username',
+          [profile.displayName]
+        );
+        const user = newUser.rows[0];
+
+        await pool.query(
+          'INSERT INTO federated_credentials (customer_id, provider, subject) VALUES ($1, $2, $3)',
+          [user.id, 'https://accounts.google.com', profile.id]
+        );
+
+        return cb(null, user);
       } else {
-        // The account at Google has previously logged in to the app.  Get the
-        // user record associated with the Google account and log the user in.
-        db.get('SELECT * FROM users WHERE id = ?', [ cred.user_id ], function(err, user) {
-          if (err) { return cb(err); }
-          if (!user) { return cb(null, false); }
-          return cb(null, user);
-        });
+        // Existing user: fetch from users
+        const user_id = credResult.rows[0].user_id;
+        const userResult = await pool.query(
+          'SELECT id, username FROM customers WHERE id = $1',
+          [user_id]
+        );
+        // User not found
+        if (userResult.rows.length === 0) return cb(null, false);
+        return cb(null, userResult.rows[0]);
       }
-    });
+    } catch (err) {
+      console.error('Error in verify function', err);
+      return cb(err);
+    }
   }
 ));
 
