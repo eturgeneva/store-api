@@ -23,7 +23,7 @@ app.use(
 app.use(passport.initialize());	
 app.use(passport.session());	
 
-app.use(logReqObject);
+app.use(logReqestStatus);
 
 // Google Strategy
 passport.use(new GoogleStrategy({
@@ -76,7 +76,21 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-app.get('/', (req,res) => {
+// Serialize and deserialize
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+// passport.deserializeUser((user, done) => {
+//     done(null, user);
+// });
+passport.deserializeUser((id, done) => {
+  db.get('SELECT * FROM users WHERE id = ?', [id], function(err, user) {
+    done(err, user);
+  });
+});
+
+app.get('/', (req, res) => {
     res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
 });
 
@@ -91,17 +105,27 @@ app.get('/oauth2/redirect/google',
     res.redirect('/');
 });
 
-
+app.get('/profile', checkIfAuthenticated, (req, res, next) => {
+    res.status(200).send('Login successful');
+})
 
 app.listen(PORT, () => {
     console.log(`App running on http://localhost:${PORT}`);
 })
 
-function logReqObject(req, res, next) {
-    // console.log('req object', req);
+function logReqestStatus(req, res, next) {
     if (req) {
-        console.log('req object', req.isAuthenticated());
+        console.log('Request status', req.isAuthenticated());
         next();
     }
     next();
+}
+
+function checkIfAuthenticated(req, res, next) {
+    if (req && req.isAuthenticated()) {
+        next();
+    } else {
+        console.log('Please login');
+        res.redirect('/login');
+    }
 }
