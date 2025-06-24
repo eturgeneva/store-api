@@ -86,12 +86,14 @@ passport.use(new GoogleStrategy({
 
 // Serialize and deserialize
 passport.serializeUser((user, done) => {
+  console.log('serialize', user);
     done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
     const result = await pool.query('SELECT id, username FROM customers WHERE id = $1', [id]);
+    console.log('deserialize result', result);
     if (result.rows.length === 0) return done(null, false);
     return done(null, result.rows[0]);
   } catch (err) {
@@ -109,9 +111,9 @@ app.get('/login/google', passport.authenticate('google'));
 
 // processes the authentication response and logs the user in, after Google redirects the user back to the app:
 app.get('/oauth2/redirect/google',
-  passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
+  passport.authenticate('google', { failureRedirect: '/login/google', failureMessage: true }),
   function(req, res) {
-    // res.redirect('/');
+    res.redirect('/');
 });
 
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
@@ -125,7 +127,6 @@ app.listen(PORT, () => {
 function logReqestStatus(req, res, next) {
     if (req) {
         console.log('Request status', req.isAuthenticated());
-        next();
     }
     next();
 }
@@ -134,7 +135,7 @@ function checkIfAuthenticated(req, res, next) {
     if (req && req.isAuthenticated()) {
         next();
     } else {
-        console.log('Please login upd');
+        console.log('Please login');
         res.redirect('/login');
     }
 }
