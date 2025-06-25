@@ -55,8 +55,8 @@ passport.use(new GoogleStrategy({
       // New user insert
       if (credResult.rows.length === 0) {
         const newUser = await pool.query(
-          'INSERT INTO customers (username) VALUES ($1) RETURNING id, username',
-          [profile.displayName]
+          'INSERT INTO customers (username, first_name, last_name) VALUES ($1, $2, $3) RETURNING id, username',
+          [profile.displayName, profile.name.givenName, profile.name.familyName]
         );
         const user = newUser.rows[0];
 
