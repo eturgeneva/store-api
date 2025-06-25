@@ -136,6 +136,7 @@ function checkIfAuthenticated(req, res, next) {
         next();
     } else {
         console.log('Please login');
-        res.redirect('/login');
+        // res.redirect('/login');
+        res.status(401).send();
     }
 }
