@@ -349,6 +349,43 @@ paths:
           description: Internal Server Error
       tags:
         - User
+  /logout:
+    post:
+      summary: Logs a user out
+      description: Logs a user out
+      operationId: logoutUser
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {status: success}
+          description: Success
+        '401':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Unauthorized
+          description: Invalid token
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: User not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - User
+      
   /carts:
     post:
       summary: Create a new cart
