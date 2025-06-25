@@ -200,9 +200,9 @@ paths:
           description: Internal Server Error
       tags:
         - Order
-  /user:
+  /users:
     post:
-      summary: Creates a user without a specified ID
+      summary: Creates a new user without a specified ID
       description: >-
         Creates a user without a specifired ID and adds it to the users
         database.
@@ -234,7 +234,7 @@ paths:
         - User
   
   # or user/me assumed by default
-  /user/{id}:
+  /users/{id}:
     get:
       summary: Gets a user by ID.
       description: Retrieves a user from the users database by a matching ID.
@@ -305,6 +305,41 @@ paths:
                 Error:
                   value: Not found
           description: User not foun
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - User
+  /login:
+    post:
+      summary: Logs a user in
+      description: Logs a user in
+      operationId: loginUser
+      requestBody:
+        description: Login credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {userId: user_id}
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
         '500':
           content:
             text/plain; charset=utf-8:
@@ -486,3 +521,11 @@ components:
           type: string
       xml:
         name: Order
+        
+    Credentials:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
