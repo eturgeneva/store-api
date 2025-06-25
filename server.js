@@ -118,7 +118,14 @@ app.get('/oauth2/redirect/google',
 
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
     res.status(200).send('Login successful');
-})
+});
+
+app.all('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) return next(err);
+    res.status(200).send('Successful logout');
+  });
+});
 
 app.listen(PORT, () => {
     console.log(`App running on http://localhost:${PORT}`);
