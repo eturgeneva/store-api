@@ -40,7 +40,7 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
     // callbackURL: 'http://localhost:3000',
     callbackURL: 'http://localhost:3000/oauth2/redirect/google',
-    scope: [ 'profile' ],
+    scope: [ 'profile', 'email' ],
     state: true
   },
   async function verify(accessToken, refreshToken, profile, cb) {
@@ -55,8 +55,8 @@ passport.use(new GoogleStrategy({
       // New user insert
       if (credResult.rows.length === 0) {
         const newUser = await pool.query(
-          'INSERT INTO customers (username, first_name, last_name) VALUES ($1, $2, $3) RETURNING id, username',
-          [profile.displayName, profile.name.givenName, profile.name.familyName]
+          'INSERT INTO customers (username, first_name, last_name, email) VALUES ($1, $2, $3, $4) RETURNING id, username',
+          [profile.displayName, profile.name.givenName, profile.name.familyName, profile.emails[0].value]
         );
         const user = newUser.rows[0];
 
