@@ -35,7 +35,7 @@ describe('GET /', function() {
 });
 
 describe('GET /logout', function() {
-  it('responds with json', function(done) {
+  it('responds with 200 status and logout message', function(done) {
     request(app)
       .get('/logout')
     //   .set('Accept', 'application/json')
