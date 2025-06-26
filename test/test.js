@@ -100,13 +100,20 @@ describe('POST /users', () => {
     it('responds with json, creates a new user', async () => {
         const res = await request(app)
             .post('/users')
-            .send(JSON.stringify({ 
+            // .send(JSON.stringify({ 
+            //     username: 'Cat',
+            //     first_name: 'Vasya',
+            //     last_name: 'Pupkin',
+            //     email: 'email@mail.com',
+            //     password: '123'
+            // }))
+            .send({ 
                 username: 'Cat',
                 first_name: 'Vasya',
                 last_name: 'Pupkin',
                 email: 'email@mail.com',
                 password: '123'
-            }))
+            })
             .expect(201)
         console.log(res.body);
         
