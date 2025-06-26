@@ -16,7 +16,7 @@ const pool = new Pool({
 });
 
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 // Passport needs the session middleware to be initialized first, otherwise req.isAuthenticated() and req.user won’t work properly across requests.
 // Session middleware:
@@ -37,21 +37,26 @@ app.use(logReqestStatus);
 
 // Local Strategy
 passport.use(new LocalStrategy(
-  function(email, password, done) {
-
-    findByEmail(email, async (err, user) => {
+  { usernameField: 'email' },
+  async function(email, password, done) {
+    console.log('local');
+    try {
       const userResult = await pool.query(
         'SELECT * FROM customers WHERE email = $1',
         [email]
-      )
-      if (err) return done(err);
-      if (!user) return done(null, false);
-
+      );
+      // If user not found
+      if (userResult.rows.length === 0) {
+        return done(null, false, { message:'Incorrect email or password' });
+      }
+      // If password is incorrect
       const storedPassword = userResult.rows[0].password;
-
-      if (password !== storedPassword) return done(null, false);
-      return done(null, user);
-    })
+      if (password !== storedPassword) return done(null, false, { message:'Incorrect email or password' });
+      
+      return done(null, userResult.rows[0]); // to return the actual user
+    } catch (err) {
+      return done(err);
+    }
   }
 ))
 
@@ -135,7 +140,7 @@ app.post('/login', passport.authenticate('local'), (req, res, next) => {
   //   }
   //   return res.status(200).send();
   // })
-  return res.status(200).send();
+  return res.status(200).send('Login successful');
 });
 
 // For Google OAuth 2.0

@@ -40,10 +40,14 @@ describe('POST /login', () => {
   it('responds with json and 200 status, log a user in', async () => {
     const loginResponse = await request(app)
       .post('/login')
-      .send(JSON.stringify({
-        login: 'evgesha@mail.com',
+      // .send(JSON.stringify({
+      //   email: 'evgesha@mail.com',
+      //   password: '12345'
+      // }))
+      .send({
+        email: 'evgesha@mail.com',
         password: '12345'
-      }))
+      })
       .expect(200)
     // console.log(loginResponse);
     const cookie = loginResponse.header['set-cookie'];
@@ -61,10 +65,14 @@ describe('POST /logout', () => {
   it('responds with 200 status and logout message', async () => {
     const loginResponse = await request(app)
       .post('/login')
-      .send(JSON.stringify({
+      // .send(JSON.stringify({
+      //   email: 'evgesha@mail.com',
+      //   password: '12345'
+      // }))
+      .send({
         email: 'evgesha@mail.com',
         password: '12345'
-      }))
+      })
       .expect(200)
     // console.log(loginResponse);
     const cookie = loginResponse.header['set-cookie'];
