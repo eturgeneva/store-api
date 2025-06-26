@@ -25,7 +25,7 @@ let isAuthenticated = true;
 //     }
 // });
 
-describe('GET /', function() {
+describe('GET /', () => {
   it('responds with json', function(done) {
     request(app)
       .get('/')
@@ -35,7 +35,29 @@ describe('GET /', function() {
   });
 });
 
-describe('GET /logout', function() {
+// Login
+desribe('POST /login', () => {
+  it('responds with json and 200 status, log a user in', async () => {
+    const loginResponse = await request(app)
+      .post('/login')
+      .send(JSON.stringify({
+        login: 'evgesha@mail.com',
+        password: '12345'
+      }))
+      .expect(200)
+    // console.log(loginResponse);
+    const cookie = loginResponse.header['set-cookie'];
+    
+    // Checking that the user has access to profile
+    await request(app)
+      .get('/profile')
+      .set('Cookie', cookie)
+      .expect(200, 'Login successful')
+  })
+})
+
+// Logout 
+describe('POST /logout', () => {
   it('responds with 200 status and logout message', async function() {
     const loginResponse = await request(app)
       .post('/login')
@@ -44,7 +66,6 @@ describe('GET /logout', function() {
         password: '12345'
       }))
       .expect(200)
-    
     // console.log(loginResponse);
     const cookie = loginResponse.header['set-cookie'];
     
@@ -52,10 +73,13 @@ describe('GET /logout', function() {
       .get('/profile')
       .set('Cookie', cookie)
       .expect(200, 'Login successful')
+
     await request(app)
-      .get('/logout')
+      .post('/logout')
       .set('Cookie', cookie)
       .expect(200)
+
+    // Checking that the user doesn't have access to profile anymore
     await request(app)
       .get('/profile')
       .set('Cookie', cookie)
@@ -64,7 +88,7 @@ describe('GET /logout', function() {
 });
 
 // User registration
-describe('POST /users', function() {
+describe('POST /users', () => {
     it('responds with json, creates a new user', async function() {
         const res = await request(app)
             .post('/users')
