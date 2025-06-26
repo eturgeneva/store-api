@@ -102,7 +102,9 @@ passport.deserializeUser(async (id, done) => {
 });
 
 app.get('/', (req, res) => {
-    res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
+  console.log(req);
+  res.set('Content-Type', 'application/json');
+  res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
 });
 
 // For Google OAuth 2.0
@@ -127,9 +129,9 @@ app.all('/logout', (req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-    console.log(`App running on http://localhost:${PORT}`);
-})
+// app.listen(PORT, () => {
+//     console.log(`App running on http://localhost:${PORT}`);
+// })
 
 function logReqestStatus(req, res, next) {
     if (req) {
@@ -162,3 +164,5 @@ function checkIfAuthenticated(req, res, next) {
 //         next();
 //     }
 // });
+
+module.exports = { app };
