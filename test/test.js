@@ -1,7 +1,6 @@
-const { app } = require('../server');
+const { app } = require('../app');
 const request = require('supertest');
 // const { it, describe } = require('node:test');
-// console.log(app);
 
 let user = {};
 let isAuthenticated = true;
@@ -24,15 +23,6 @@ let isAuthenticated = true;
 //         next();
 //     }
 // });
-
-// request(app)
-//   .get('/')
-//   .expect('Content-Type', /json/)
-//   .expect('Content-Length', '15')
-//   .expect(200)
-//   .end(function(err, res) {
-//     if (err) throw err;
-//   });
 
 describe('GET /', function() {
   it('responds with json', function(done) {
