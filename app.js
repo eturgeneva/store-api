@@ -116,6 +116,11 @@ app.get('/oauth2/redirect/google',
     res.redirect('/');
 });
 
+app.post('/users', (req, res, next) => {
+  console.log({ userId: res.id });
+  res.status(201).send({ userId: 1 });
+});
+
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
     res.status(200).send('Login successful');
 });
@@ -148,4 +153,4 @@ function checkIfAuthenticated(req, res, next) {
     }
 }
 
-module.exports = { app };
+module.exports = { app, pool };

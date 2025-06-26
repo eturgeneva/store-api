@@ -1,5 +1,6 @@
-const { app } = require('../app');
+const { app, pool } = require('../app');
 const request = require('supertest');
+const assert = require('node:assert');
 // const { it, describe } = require('node:test');
 
 let user = {};
@@ -43,3 +44,36 @@ describe('GET /logout', function() {
       .expect(200, done);
   });
 });
+
+describe('POST /users', function() {
+    it('responds with json, creates a new user', async function() {
+        const res = await request(app)
+            .post('/users')
+            .send(JSON.stringify({ 
+                username: 'Cat',
+                first_name: 'Vasya',
+                last_name: 'Pupkin',
+                email: 'email@mail.com',
+                password: '123'
+            }))
+            .expect(201)
+        console.log(res.body);
+        
+        assert.ok(!isNaN(res.body.userId));
+        // Checking that the user was added to the database
+        const userResult = await pool.query(
+            'SELECT * FROM customers WHERE id = $1',
+            [res.body.userId]
+        );
+        assert.equal(userResult.rows.length, 1, 'No user was created');
+
+        // Checking that user data has been stored correctly
+        const user = userResult.rows[0];
+        console.log(user);
+        assert.equal(user.id, res.body.userId);
+        assert.equal(user.first_name, 'Vasya');
+        assert.equal(user.last_name, 'Pupkin');
+        assert.equal(user.email, 'email@mail.com');
+        assert.equal(user.password, '123');
+    })
+})
