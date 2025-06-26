@@ -33,3 +33,13 @@ describe('GET /', function() {
       .expect(200, done);
   });
 });
+
+describe('GET /logout', function() {
+  it('responds with json', function(done) {
+    request(app)
+      .get('/logout')
+    //   .set('Accept', 'application/json')
+    //   .expect('Content-Type', /json/)
+      .expect(200, done);
+  });
+});
