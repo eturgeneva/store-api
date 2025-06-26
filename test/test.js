@@ -36,15 +36,28 @@ describe('GET /', function() {
 });
 
 describe('GET /logout', function() {
-  it('responds with 200 status and logout message', function(done) {
-    request(app)
+  it('responds with 200 status and logout message', async function() {
+    await request(app)
+      .post('/login')
+      .send(JSON.stringify({
+        login: 'evgesha@mail.com',
+        password: '12345'
+      }))
+      .expect(200)
+    
+    await request(app)
+      .get('/profile')
+      .expect(200, 'Login successful')
+    await request(app)
       .get('/logout')
-    //   .set('Accept', 'application/json')
-    //   .expect('Content-Type', /json/)
-      .expect(200, done);
+      .expect(200)
+    await request(app)
+      .get('/profile')
+      .expect(401);
   });
 });
 
+// User registration
 describe('POST /users', function() {
     it('responds with json, creates a new user', async function() {
         const res = await request(app)
