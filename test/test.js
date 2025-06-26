@@ -37,7 +37,7 @@ describe('GET /', function() {
 
 describe('GET /logout', function() {
   it('responds with 200 status and logout message', async function() {
-    await request(app)
+    const loginResponse = await request(app)
       .post('/login')
       .send(JSON.stringify({
         login: 'evgesha@mail.com',
@@ -45,14 +45,20 @@ describe('GET /logout', function() {
       }))
       .expect(200)
     
+    // console.log(loginResponse);
+    const cookie = loginResponse.header['set-cookie'];
+    
     await request(app)
       .get('/profile')
+      .set('Cookie', cookie)
       .expect(200, 'Login successful')
     await request(app)
       .get('/logout')
+      .set('Cookie', cookie)
       .expect(200)
     await request(app)
       .get('/profile')
+      .set('Cookie', cookie)
       .expect(401);
   });
 });

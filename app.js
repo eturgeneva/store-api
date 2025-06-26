@@ -91,6 +91,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
+  console.log('Deserialize');
   try {
     const result = await pool.query('SELECT id, username FROM customers WHERE id = $1', [id]);
     console.log('deserialize result', result);
@@ -103,6 +104,15 @@ passport.deserializeUser(async (id, done) => {
 
 app.get('/', (req, res) => {
   res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
+});
+
+app.post('/login', (req, res, next) => {
+  req.login({ id: 5 }, (err) => {
+    if (err) {
+      return next(err);
+    }
+    return res.status(200).send();
+  })
 });
 
 // For Google OAuth 2.0
@@ -125,6 +135,7 @@ app.get('/profile', checkIfAuthenticated, (req, res, next) => {
     res.status(200).send('Login successful');
 });
 
+
 app.all('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) return next(err);
@@ -144,6 +155,7 @@ function logReqestStatus(req, res, next) {
 }
 
 function checkIfAuthenticated(req, res, next) {
+    console.log(req.isAuthenticated());
     if (req && req.isAuthenticated()) {
         next();
     } else {
