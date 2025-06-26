@@ -19,5 +19,8 @@
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.16.2",
     "pg-pool": "^3.10.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.1"
   }
 }
