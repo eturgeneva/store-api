@@ -36,41 +36,24 @@ app.use(logReqestStatus);
 // Postgres Setup
 
 // Local Strategy
-// passport.use(new LocalStrategy(
-//   function(email, password, done) {
-//     async function findByEmail(email, (err, user) => {
-//       const user = await pool.query(
-//         'SELECT * FROM customers WHERE email = $1',
-//         [email]
-//       )
-//       const storedPassword = user.rows[0].password;
-//       if (err) return done(err);
-//       if (!user) return done(null, false);
-//       if (password !== storedPassword) return done(null, false);
-//       return done(null, user);
-//     })
-//   }
-// ))
-
 passport.use(new LocalStrategy(
   function(email, password, done) {
 
     findByEmail(email, async (err, user) => {
-      const user = await pool.query(
+      const userResult = await pool.query(
         'SELECT * FROM customers WHERE email = $1',
         [email]
       )
       if (err) return done(err);
       if (!user) return done(null, false);
 
-      const storedPassword = user.rows[0].password;
+      const storedPassword = userResult.rows[0].password;
 
       if (password !== storedPassword) return done(null, false);
       return done(null, user);
     })
   }
 ))
-
 
 // Google Strategy
 passport.use(new GoogleStrategy({
@@ -144,13 +127,15 @@ app.get('/', (req, res) => {
   res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
 });
 
-app.post('/login', (req, res, next) => {
-  req.login({ id: 5 }, (err) => {
-    if (err) {
-      return next(err);
-    }
-    return res.status(200).send();
-  })
+app.post('/login', passport.authenticate('local'), (req, res, next) => {
+  // Hardcoded ID for test
+  // req.login({ id: 5 }, (err) => {
+  //   if (err) {
+  //     return next(err);
+  //   }
+  //   return res.status(200).send();
+  // })
+  return res.status(200).send();
 });
 
 // For Google OAuth 2.0
