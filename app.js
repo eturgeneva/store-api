@@ -155,9 +155,33 @@ app.get('/oauth2/redirect/google',
 });
 
 // User registration
-app.post('/users', (req, res, next) => {
-  console.log({ userId: res.id });
-  res.status(201).send({ userId: 1 });
+app.post('/users', async (req, res, next) => {
+  // For test
+  // console.log({ userId: res.id });
+  // res.status(201).send({ userId: 1 });
+//   const { email, password } = req.body;
+//   try {
+//       const newUser = await pool.query(
+//         'INSERT INTO customers (email, password) VALUES $1, $2',
+//         [email, password]
+//       )
+//       if (newUser.rows.length === 1) {
+//         res.status(201).send({ userId: newUser.rows[0].id });
+//       }
+//   } catch (err) {
+//     console.error(err);
+//   }
+// });
+  const { email, password } = req.body;
+    const newUser = await pool.query(
+      'INSERT INTO customers (email, password) VALUES $1, $2',
+      [email, password]
+    )
+    if (newUser.rows.length === 1) {
+      res.status(201).send({ userId: newUser.rows[0].id });
+    } else {
+      res.status(400).send();
+    }
 });
 
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
