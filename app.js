@@ -160,11 +160,11 @@ app.post('/users', async (req, res, next) => {
   // console.log({ userId: res.id });
   // res.status(201).send({ userId: 1 });
 
-  const { email, password } = req.body;
+  const { username, first_name, last_name, email, password } = req.body;
   try {
       const newUser = await pool.query(
-        'INSERT INTO customers (email, password) VALUES ($1, $2)',
-        [email, password]
+        'INSERT INTO customers (username, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [username, first_name, last_name, email, password]
       )
       if (newUser.rows.length === 1) {
         res.status(201).send({ userId: newUser.rows[0].id });
@@ -176,18 +176,6 @@ app.post('/users', async (req, res, next) => {
     res.status(500).send('Internal Server Error')
   }
 });
-
-//   const { email, password } = req.body;
-//     const newUser = await pool.query(
-//       'INSERT INTO customers (email, password) VALUES ($1, $2)',
-//       [email, password]
-//     )
-//     if (newUser.rows.length === 1) {
-//       res.status(201).send({ userId: newUser.rows[0].id });
-//     } else {
-//       res.status(400).send();
-//     }
-// });
 
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
     res.status(200).send('Login successful');
