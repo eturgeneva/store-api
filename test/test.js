@@ -26,7 +26,7 @@ let isAuthenticated = true;
 // });
 
 describe('GET /', () => {
-  it('responds with json', function(done) {
+  it('responds with json', (done) => {
     request(app)
       .get('/')
       .set('Accept', 'application/json')
@@ -36,7 +36,7 @@ describe('GET /', () => {
 });
 
 // Login
-desribe('POST /login', () => {
+describe('POST /login', () => {
   it('responds with json and 200 status, log a user in', async () => {
     const loginResponse = await request(app)
       .post('/login')
@@ -58,7 +58,7 @@ desribe('POST /login', () => {
 
 // Logout 
 describe('POST /logout', () => {
-  it('responds with 200 status and logout message', async function() {
+  it('responds with 200 status and logout message', async () => {
     const loginResponse = await request(app)
       .post('/login')
       .send(JSON.stringify({
@@ -89,7 +89,7 @@ describe('POST /logout', () => {
 
 // User registration
 describe('POST /users', () => {
-    it('responds with json, creates a new user', async function() {
+    it('responds with json, creates a new user', async () => {
         const res = await request(app)
             .post('/users')
             .send(JSON.stringify({ 
