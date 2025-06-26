@@ -62,7 +62,7 @@ describe('POST /logout', () => {
     const loginResponse = await request(app)
       .post('/login')
       .send(JSON.stringify({
-        login: 'evgesha@mail.com',
+        email: 'evgesha@mail.com',
         password: '12345'
       }))
       .expect(200)

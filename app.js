@@ -3,6 +3,7 @@ const express = require('express');
 const session = require("express-session");
 const passport = require("passport");
 const { Pool } = require('pg');
+const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20');
 
 const app = express();
@@ -33,6 +34,43 @@ app.use(passport.session());
 app.use(logReqestStatus);
 
 // Postgres Setup
+
+// Local Strategy
+// passport.use(new LocalStrategy(
+//   function(email, password, done) {
+//     async function findByEmail(email, (err, user) => {
+//       const user = await pool.query(
+//         'SELECT * FROM customers WHERE email = $1',
+//         [email]
+//       )
+//       const storedPassword = user.rows[0].password;
+//       if (err) return done(err);
+//       if (!user) return done(null, false);
+//       if (password !== storedPassword) return done(null, false);
+//       return done(null, user);
+//     })
+//   }
+// ))
+
+passport.use(new LocalStrategy(
+  function(email, password, done) {
+
+    findByEmail(email, async (err, user) => {
+      const user = await pool.query(
+        'SELECT * FROM customers WHERE email = $1',
+        [email]
+      )
+      if (err) return done(err);
+      if (!user) return done(null, false);
+
+      const storedPassword = user.rows[0].password;
+
+      if (password !== storedPassword) return done(null, false);
+      return done(null, user);
+    })
+  }
+))
+
 
 // Google Strategy
 passport.use(new GoogleStrategy({
@@ -126,6 +164,7 @@ app.get('/oauth2/redirect/google',
     res.redirect('/');
 });
 
+// User registration
 app.post('/users', (req, res, next) => {
   console.log({ userId: res.id });
   res.status(201).send({ userId: 1 });
