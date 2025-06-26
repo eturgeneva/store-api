@@ -147,3 +147,18 @@ function checkIfAuthenticated(req, res, next) {
         res.status(401).send();
     }
 }
+
+// Testing
+// Adds this middleware as the first one in the middleware stack
+// app.stack.unshift({ // First middleware
+//     route: '',
+//     handle: function (req, res, next) {
+//         req.user = {};
+
+//         req.isAuthenticated = function () {
+//             return true;
+//         };
+
+//         next();
+//     }
+// });
