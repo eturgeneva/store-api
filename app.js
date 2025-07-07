@@ -146,9 +146,16 @@ app.get('/', (req, res) => {
       }
 
       if (!user) {
-        console.log('login info', info);
+        console.log('Login info', info);
         return res.status(401).send({ message: info?.message || 'Invalid credentials' });
       }
+
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Login error', err);
+          return res.status(500).send({ message: 'Login failed' });
+        }
+      })
 
       return res.status(200).send({
         message: 'Login successful',
