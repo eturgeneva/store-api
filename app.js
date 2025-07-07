@@ -137,6 +137,7 @@ app.get('/', (req, res) => {
   res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
 });
 
+// User login:
 // app.post('/login', passport.authenticate('local'), (req, res, next) => {
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -170,7 +171,7 @@ app.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-// For Google OAuth 2.0
+// User login Google OAuth 2.0:
 // redirects the user to the Google, where they will authenticate:
 app.get('/login/google', passport.authenticate('google'));
 
@@ -181,12 +182,8 @@ app.get('/oauth2/redirect/google',
     res.redirect('/');
 });
 
-// User registration
+// User registration:
 app.post('/users', async (req, res, next) => {
-  // For test
-  // console.log({ userId: res.id });
-  // res.status(201).send({ userId: 1 });
-
   const { username, first_name, last_name, email, password } = req.body;
   try {
       const newUser = await pool.query(
@@ -208,7 +205,12 @@ app.get('/profile', checkIfAuthenticated, (req, res, next) => {
     res.status(200).send('Login successful');
 });
 
+// User update info:
+app.put('/users/:id', (req, res, next) => {
+  const { username, first_name, last_name, email, password } = req.body;
+})
 
+// User logout:
 app.all('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) return next(err);
