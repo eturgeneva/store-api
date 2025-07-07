@@ -210,11 +210,12 @@ app.put('/users/:id', async (req, res, next) => {
   const { first_name, last_name, address } = req.body;
   try {
       const updatedUser = await pool.query(
-      'UPDATE customers SET first_name = $1, last_name = $2, address = $3 WHERE id = $4',
+      'UPDATE customers SET first_name = $1, last_name = $2, address = $3 WHERE id = $4 RETURNING *',
       [first_name, last_name, address, 5]
+      // id: req.user.id,
     )
     if (updatedUser.rows.length === 1) {
-          res.status(201).send({ userId: updatedUser.rows[0].id });
+          res.status(201).send({ userId: updatedUser.rows[0] });
     } else {
           res.status(400).send('Failed to update user information');
     }
