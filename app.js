@@ -138,15 +138,17 @@ app.get('/', (req, res) => {
 });
 
 app.post('/login', passport.authenticate('local'), (req, res, next) => {
-  // Hardcoded ID for test
-  // req.login({ id: 5 }, (err) => {
-  //   if (err) {
-  //     return next(err);
-  //   }
-  //   return res.status(200).send();
-  // })
-  
-  return res.status(200).send({ message: 'Login successful' });
+  // return res.status(200).send({ message: 'Login successful' });
+  return res.status(200).send({
+    message: 'Login successful',
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      first_name: req.user.first_name,
+      last_name: req.user.last_name
+    }
+  });
 });
 
 // For Google OAuth 2.0
