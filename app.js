@@ -138,37 +138,37 @@ app.get('/', (req, res) => {
 });
 
 // app.post('/login', passport.authenticate('local'), (req, res, next) => {
-  app.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+app.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error('Authentication error', err);
+      return res.status(500).send({ message: 'Internal server Error' });
+    }
+
+    if (!user) {
+      console.log('Login info', info);
+      return res.status(401).send({ message: info?.message || 'Invalid credentials' });
+    }
+
+    req.login(user, (err) => {
       if (err) {
-        console.error('Authentication error', err);
-        return res.status(500).send({ message: 'Internal server Error' });
+        console.error('Login error', err);
+        return res.status(500).send({ message: 'Login failed' });
       }
+    })
 
-      if (!user) {
-        console.log('Login info', info);
-        return res.status(401).send({ message: info?.message || 'Invalid credentials' });
+    return res.status(200).send({
+      message: 'Login successful',
+      user: {
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+        first_name: req.user.first_name,
+        last_name: req.user.last_name
       }
-
-      req.login(user, (err) => {
-        if (err) {
-          console.error('Login error', err);
-          return res.status(500).send({ message: 'Login failed' });
-        }
-      })
-
-      return res.status(200).send({
-        message: 'Login successful',
-        user: {
-          id: req.user.id,
-          username: req.user.username,
-          email: req.user.email,
-          first_name: req.user.first_name,
-          last_name: req.user.last_name
-        }
-      });
-    })(req, res, next);
-  });
+    });
+  })(req, res, next);
+});
 
 // For Google OAuth 2.0
 // redirects the user to the Google, where they will authenticate:
