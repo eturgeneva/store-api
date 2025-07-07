@@ -165,7 +165,8 @@ app.post('/login', (req, res, next) => {
         username: req.user.username,
         email: req.user.email,
         first_name: req.user.first_name,
-        last_name: req.user.last_name
+        last_name: req.user.last_name,
+        address: req.user.address
       }
     });
   })(req, res, next);
@@ -208,10 +209,11 @@ app.get('/profile', checkIfAuthenticated, (req, res, next) => {
 // User update info:
 app.put('/users/:id', async (req, res, next) => {
   const { first_name, last_name, address } = req.body;
+  const userId = req.params.id;
   try {
       const updatedUser = await pool.query(
       'UPDATE customers SET first_name = $1, last_name = $2, address = $3 WHERE id = $4 RETURNING *',
-      [first_name, last_name, address, 5]
+      [first_name, last_name, address, userId]
       // id: req.user.id,
     )
     if (updatedUser.rows.length === 1) {
