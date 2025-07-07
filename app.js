@@ -29,7 +29,12 @@ app.use(
   session({	
     secret: 'mySecret',	
     resave: false,	
-    saveUninitialized: false	
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false, // Change to true in production with HTTPS
+      sameSite: 'lax' // or 'none' if frontend and backend are on different origins
+  }	
   })	
 );	
 // THEN initialize Passport	
@@ -124,7 +129,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   console.log('Deserialize');
   try {
-    const result = await pool.query('SELECT id, username FROM customers WHERE id = $1', [id]);
+    const result = await pool.query('SELECT id, username, first_name, last_name, address FROM customers WHERE id = $1', [id]);
     console.log('deserialize result', result);
     if (result.rows.length === 0) return done(null, false);
     return done(null, result.rows[0]);
@@ -156,19 +161,9 @@ app.post('/login', (req, res, next) => {
         console.error('Login error', err);
         return res.status(500).send({ message: 'Login failed' });
       }
+      return res.status(200).send('Login successful');
     })
 
-    return res.status(200).send({
-      message: 'Login successful',
-      user: {
-        id: req.user.id,
-        username: req.user.username,
-        email: req.user.email,
-        first_name: req.user.first_name,
-        last_name: req.user.last_name,
-        address: req.user.address
-      }
-    });
   })(req, res, next);
 });
 
@@ -203,7 +198,14 @@ app.post('/users', async (req, res, next) => {
 });
 
 app.get('/profile', checkIfAuthenticated, (req, res, next) => {
-    res.status(200).send('Login successful');
+    return res.status(200).send({
+          id: req.user.id,
+          username: req.user.username,
+          email: req.user.email,
+          first_name: req.user.first_name,
+          last_name: req.user.last_name,
+          address: req.user.address
+    });
 });
 
 // User update info:
