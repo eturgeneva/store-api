@@ -197,7 +197,7 @@ app.post('/users', async (req, res, next) => {
       }
   } catch (err) {
     console.error(err);
-    res.status(500).send('Internal Server Error')
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -206,8 +206,22 @@ app.get('/profile', checkIfAuthenticated, (req, res, next) => {
 });
 
 // User update info:
-app.put('/users/:id', (req, res, next) => {
-  const { username, first_name, last_name, email, password } = req.body;
+app.put('/users/:id', async (req, res, next) => {
+  const { first_name, last_name, address } = req.body;
+  try {
+      const updatedUser = await pool.query(
+      'UPDATE customers SET first_name = $1, last_name = $2, address = $3 WHERE id = $4',
+      [first_name, last_name, address, 5]
+    )
+    if (updatedUser.rows.length === 1) {
+          res.status(201).send({ userId: updatedUser.rows[0].id });
+    } else {
+          res.status(400).send('Failed to update user information');
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 })
 
 // User logout:
