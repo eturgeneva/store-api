@@ -16,9 +16,12 @@ const pool = new Pool({
   // ssl: { rejectUnauthorized: false } // for Heroku or secured environments
 });
 
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 
 // Passport needs the session middleware to be initialized first, otherwise req.isAuthenticated() and req.user won’t work properly across requests.
 // Session middleware:
@@ -142,7 +145,8 @@ app.post('/login', passport.authenticate('local'), (req, res, next) => {
   //   }
   //   return res.status(200).send();
   // })
-  return res.status(200).send('Login successful');
+  
+  return res.status(200).send({ message: 'Login successful' });
 });
 
 // For Google OAuth 2.0
