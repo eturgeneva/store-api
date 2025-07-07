@@ -137,19 +137,31 @@ app.get('/', (req, res) => {
   res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
 });
 
-app.post('/login', passport.authenticate('local'), (req, res, next) => {
-  // return res.status(200).send({ message: 'Login successful' });
-  return res.status(200).send({
-    message: 'Login successful',
-    user: {
-      id: req.user.id,
-      username: req.user.username,
-      email: req.user.email,
-      first_name: req.user.first_name,
-      last_name: req.user.last_name
-    }
+// app.post('/login', passport.authenticate('local'), (req, res, next) => {
+  app.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if (err) {
+        console.error('Authentication error', err);
+        return res.status(500).send({ message: 'Internal server Error' });
+      }
+
+      if (!user) {
+        console.log('login info', info);
+        return res.status(401).send({ message: info?.message || 'Invalid credentials' });
+      }
+
+      return res.status(200).send({
+        message: 'Login successful',
+        user: {
+          id: req.user.id,
+          username: req.user.username,
+          email: req.user.email,
+          first_name: req.user.first_name,
+          last_name: req.user.last_name
+        }
+      });
+    })(req, res, next);
   });
-});
 
 // For Google OAuth 2.0
 // redirects the user to the Google, where they will authenticate:
