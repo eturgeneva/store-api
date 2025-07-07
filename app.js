@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require('express');
 const session = require("express-session");
 const passport = require("passport");
+const cors = require('cors');
 const { Pool } = require('pg');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20');
@@ -17,6 +18,7 @@ const pool = new Pool({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Passport needs the session middleware to be initialized first, otherwise req.isAuthenticated() and req.user won’t work properly across requests.
 // Session middleware:
