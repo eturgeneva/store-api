@@ -175,7 +175,8 @@ app.get('/login/google', passport.authenticate('google'));
 app.get('/oauth2/redirect/google',
   passport.authenticate('google', { failureRedirect: '/login/google', failureMessage: true }),
   function(req, res) {
-    res.redirect('/');
+    // res.redirect('/');
+    res.redirect('http://localhost:5173/profile');
 });
 
 // User registration:
