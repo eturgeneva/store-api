@@ -3,18 +3,11 @@ const express = require('express');
 const session = require("express-session");
 const passport = require("passport");
 const cors = require('cors');
-const { Pool } = require('pg');
+const { pool } = require('./pool');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20');
 
 const app = express();
-// const PORT = 3000;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Optional:
-  // ssl: { rejectUnauthorized: false } // for Heroku or secured environments
-});
 
 app.use(cors({
   origin: 'http://localhost:5173',
