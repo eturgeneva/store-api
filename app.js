@@ -238,6 +238,10 @@ app.all('/logout', (req, res, next) => {
   });
 });
 
+// Products:
+const productsRouter = require('./productsRouter.js');
+app.use('products', productsRouter);
+
 // app.listen(PORT, () => {
 //     console.log(`App running on http://localhost:${PORT}`);
 // })
