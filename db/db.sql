@@ -48,6 +48,9 @@ FROM 'C:/Users/Elena/Desktop/store-api/db/db_products.csv'
 DELIMITER ','
 CSV HEADER;
 
+-- Or try this
+\copy products (name, brand, price_cents) FROM 'C:/Users/Elena/Desktop/store-api/db/db_products.csv' DELIMITER ',' CSV HEADER;
+
 -- Importing a customers csv (via psql)
 COPY products (name, brand, price_cents)
 FROM 'C:/Users/Elena/Desktop/store-api/db/db_customers.csv'
