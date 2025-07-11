@@ -44,12 +44,16 @@ CREATE TABLE carts (
 
 -- Importing a products csv (via psql)
 COPY products (name, brand, price_cents)
-FROM 'C:/Users/Elena/Desktop/toy-store/db_products.csv'
+FROM 'C:/Users/Elena/Desktop/store-api/db/db_products.csv'
 DELIMITER ','
 CSV HEADER;
 
--- Importing a customers csv (vie psql)
+-- Importing a customers csv (via psql)
 COPY products (name, brand, price_cents)
-FROM 'C:/Users/Elena/Desktop/toy-store/db_customers.csv'
+FROM 'C:/Users/Elena/Desktop/store-api/db/db_customers.csv'
 DELIMITER ','
 CSV HEADER;
+
+-- Adding url column to the products table
+ALTER TABLE products
+ADD img_url varchar;
