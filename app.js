@@ -170,8 +170,14 @@ app.get('/login/google', passport.authenticate('google'));
 
 // processes the authentication response and logs the user in, after Google redirects the user back to the app:
 app.get('/oauth2/redirect/google',
+  (req, res, next) => {
+    req.cartId = req.session.cartId;
+    next();
+  },
   passport.authenticate('google', { failureRedirect: '/login/google', failureMessage: true }),
   function(req, res) {
+    req.session.cartId = req.cartId;
+    pool.query('UPDATE carts SET customer_id = $1 WHERE id = $2', [req.user.id, req.cartId]);
     // res.redirect('/');
     res.redirect('http://localhost:5173/profile');
 });
