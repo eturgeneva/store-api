@@ -23,6 +23,7 @@ app.use(
     secret: 'mySecret',	
     resave: false,	
     saveUninitialized: false,
+    // saveUninitialized: true,
     cookie: {
       httpOnly: true,
       secure: false, // Change to true in production with HTTPS
@@ -149,11 +150,13 @@ app.post('/login', (req, res, next) => {
       return res.status(401).send({ message: info?.message || 'Invalid credentials' });
     }
 
+    const cartId = req.session.cartId;
     req.login(user, (err) => {
       if (err) {
         console.error('Login error', err);
         return res.status(500).send({ message: 'Login failed' });
       }
+      req.session.cartId = cartId;
       return res.status(200).send('Login successful');
     })
 
