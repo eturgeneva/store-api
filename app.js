@@ -157,6 +157,7 @@ app.post('/login', (req, res, next) => {
         return res.status(500).send({ message: 'Login failed' });
       }
       req.session.cartId = cartId;
+      pool.query('UPDATE carts SET customer_id = $1 WHERE id = $2', [user.id, cartId]);
       return res.status(200).send('Login successful');
     })
 
