@@ -11,12 +11,11 @@ cartsRouter.post('/', async (req, res, next) => {
     // const cartExpirationDate = Math.floor(Date.now()/1000);
     const cartExpirationDate = addMonths(new Date(), expirationTimeMonth);
     console.log('cart expiration date', cartExpirationDate);
-    console.log('authorized user', req.user.id);
+    // console.log('authorized user', req.user.id);
     try {
         const newCart = await pool.query(
             'INSERT INTO carts (customer_id, expires_at) VALUES ($1, $2) RETURNING id', 
-            // [req.user.id]
-            [null, format(cartExpirationDate, 'yyyy-MM-dd HH:mm:ss')]
+            [req.user?.id ?? null, format(cartExpirationDate, 'yyyy-MM-dd HH:mm:ss')]
         )
         if (newCart.rows.length === 1) {
             res.status(201).send({ cartId: newCart.rows[0].id });
