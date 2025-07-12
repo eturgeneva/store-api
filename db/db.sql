@@ -39,8 +39,8 @@ CREATE TABLE orders_products (
 CREATE TABLE carts (
     id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id),
-    created_at TIMESTAMP,
-    expires_at TIMESTAMP
+    created_at TIMESTAMP DEFAULT NOW(),
+    expires_at TIMESTAMP NOT NULL
 );
 
 -- Importing a products csv (via psql)
