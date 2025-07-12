@@ -39,7 +39,8 @@ CREATE TABLE orders_products (
 CREATE TABLE carts (
     id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id),
-    ttl datetime
+    created_at TIMESTAMP,
+    expires_at TIMESTAMP
 );
 
 -- Importing a products csv (via psql)
