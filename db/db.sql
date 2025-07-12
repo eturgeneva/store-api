@@ -43,6 +43,12 @@ CREATE TABLE carts (
     expires_at TIMESTAMP NOT NULL
 );
 
+CREATE TABLE carts_products (
+    cart_id INTEGER REFERENCES carts(id),
+    product_id INTEGER REFERENCES products(id),
+    quantity INTEGER
+);
+
 -- Importing a products csv (via psql)
 COPY products (name, brand, price_cents)
 FROM 'C:/Users/Elena/Desktop/store-api/db/db_products.csv'
