@@ -235,6 +235,10 @@ app.all('/logout', (req, res, next) => {
 const productsRouter = require('./productsRouter.js');
 app.use('/products', productsRouter);
 
+// Cart:
+const cartsRouter = require('./cartsRouter.js');
+app.use('/carts', cartsRouter);
+
 // app.listen(PORT, () => {
 //     console.log(`App running on http://localhost:${PORT}`);
 // })
