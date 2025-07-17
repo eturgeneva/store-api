@@ -75,7 +75,7 @@ cartsRouter.put('/me', async (req, res, next) => {
                 [req.body.cartId]
             );
             
-            res.status(200).send(joinedCartUpdate);
+            res.status(200).send(joinedCartUpdate.rows);
         } else {
             res.status(400).send('Failed to update cart');
         }
