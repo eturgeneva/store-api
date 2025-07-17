@@ -52,6 +52,26 @@ cartsRouter.get('/me', async (req, res, next) => {
     // }
 });
 
+// Update cart:
+cartsRouter.put('/me', async (req, res, next) => {
+    const productId = req.body.productId;
+    try {
+        const updatedCart = await pool.query(
+            'INSERT INTO carts_products (cart_id, product_id) VALUES ($1, $2) RETURNING *',
+            // [req.session.cartId, productId]
+            [req.body.cartId, productId]
+        )
+        if (updatedCart.rows.length === 1) {
+            res.status(201).send(updatedCart.rows[0]);
+        } else {
+            res.status(400).send('Failed to update cart');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
 // Get cart by ID:
 cartsRouter.get('/:cartId', async (req, res, next) => {
     const cartId = req.params.cartId;
