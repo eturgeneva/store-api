@@ -36,21 +36,20 @@ cartsRouter.post('/', async (req, res, next) => {
 
 // Get cart of the currently logged in user:
 cartsRouter.get('/me', async (req, res, next) => {
-    console.log('Req session', req.session);
+    // console.log('Req session', req.session);
     // const userId = req.user.id;
-    try {
-        // const cart = await pool.query('SELECT * FROM carts WHERE customer_id = $1', [9]);
-        // const cart = await pool.query('SELECT * FROM carts WHERE customer_id = $1 ORDER BY created_at DESC', [9]);
-        const cart = await pool.query('SELECT * FROM carts WHERE customer_id = $1 ORDER BY id DESC', [4]);
-        if (cart.rows.length === 0) {
-            res.status(404).send('Cart not found');
-        }
-        console.log('Get card by ID response', cart.rows[0]);
-        res.status(200).send(cart.rows[0]);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
+
+    // try {
+    //     const cart = await pool.query('SELECT * FROM carts WHERE customer_id = $1 ORDER BY id DESC', [4]);
+    //     if (cart.rows.length === 0) {
+    //         res.status(404).send('Cart not found');
+    //     }
+    //     console.log('Get card by ID response', cart.rows[0]);
+    //     res.status(200).send(cart.rows[0]);
+    // } catch (err) {
+    //     console.error(err);
+    //     res.status(500).send('Internal Server Error');
+    // }
 });
 
 // Get cart by ID:

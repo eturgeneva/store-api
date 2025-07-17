@@ -205,15 +205,27 @@ app.post('/users', async (req, res, next) => {
   }
 });
 
-app.get('/profile', checkIfAuthenticated, (req, res, next) => {
-    return res.status(200).send({
-          id: req.user.id,
-          username: req.user.username,
-          email: req.user.email,
-          first_name: req.user.first_name,
-          last_name: req.user.last_name,
-          address: req.user.address
-    });
+app.get('/users/me', (req, res, next) => {
+    if (req.isAuthenticated()) {
+      return res.status(200).send({
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+        first_name: req.user.first_name,
+        last_name: req.user.last_name,
+        address: req.user.address,
+        cartId: req.session.cartId
+      });
+    }
+    res.status(200).send({ 
+      id: null, 
+      username: 'guest', 
+      email: '', 
+      first_name: 'guest',
+      last_name: '',
+      address: '',
+      cartId: req.session.cartId
+    })
 });
 
 // User update info:
