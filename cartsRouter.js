@@ -63,11 +63,19 @@ cartsRouter.put('/me', async (req, res, next) => {
         )
         if (updateCart.rows.length === 1) {
             // res.status(201).send(updatedCart.rows[0]);
-            const cartUpdate = await pool.query(
-                'SELECT * FROM carts_products WHERE cart_id = $1',
+
+            // Works, but sends data only from carts_products table:
+            // const cartUpdate = await pool.query(
+            //     'SELECT * FROM carts_products WHERE cart_id = $1',
+            //     [req.body.cartId]
+            // );
+
+            const joinedCartUpdate = await pool.query(
+                'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
                 [req.body.cartId]
             );
-            res.status(200).send(cartUpdate);
+            
+            res.status(200).send(joinedCartUpdate);
         } else {
             res.status(400).send('Failed to update cart');
         }
