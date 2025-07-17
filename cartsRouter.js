@@ -32,6 +32,23 @@ cartsRouter.post('/', async (req, res, next) => {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
+});
+
+// Get cart by ID:
+cartsRouter.get('/:cartId', async (req, res, next) => {
+    const cartId = req.params.cartId;
+    try {
+        const cart = await pool.query('SELECT * FROM carts WHERE id = $1', [cartId]);
+        if (cart.rows.length === 0) {
+            res.status(404).send('Cart not found');
+        }
+        console.log('Get card by ID response', cart.rows[0]);
+        res.status(200).send(cart.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+
 })
 
 module.exports = cartsRouter;
