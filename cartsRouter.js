@@ -57,9 +57,8 @@ cartsRouter.put('/me', async (req, res, next) => {
     const productId = req.body.productId;
     try {
         const updateCart = await pool.query(
-            'INSERT INTO carts_products (cart_id, product_id) VALUES ($1, $2) RETURNING *',
-            // [req.session.cartId, productId]
-            [req.body.cartId, productId]
+            'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
+            [req.body.cartId, productId, req.body.quantity]
         )
         if (updateCart.rows.length === 1) {
             // res.status(201).send(updatedCart.rows[0]);
