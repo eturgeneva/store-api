@@ -73,8 +73,8 @@ cartsRouter.put('/me', async (req, res, next) => {
                 'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
                 [req.body.cartId]
             );
-            
-            res.status(200).send(joinedCartUpdate.rows);
+            // res.status(200).send(joinedCartUpdate.rows);
+            res.status(200).send({ products: joinedCartUpdate.rows });
         } else {
             res.status(400).send('Failed to update cart');
         }
