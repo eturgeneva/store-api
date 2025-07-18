@@ -88,12 +88,18 @@ cartsRouter.put('/me', async (req, res, next) => {
 cartsRouter.get('/:cartId', async (req, res, next) => {
     const cartId = req.params.cartId;
     try {
-        const cart = await pool.query('SELECT * FROM carts WHERE id = $1', [cartId]);
-        if (cart.rows.length === 0) {
-            res.status(404).send('Cart not found');
-        }
-        console.log('Get card by ID response', cart.rows[0]);
-        res.status(200).send(cart.rows[0]);
+        // const cart = await pool.query('SELECT * FROM carts WHERE id = $1', [cartId]);
+        // if (cart.rows.length === 0) {
+        //     res.status(404).send('Cart not found');
+        // }
+        // console.log('Get card by ID response', cart.rows[0]);
+        // res.status(200).send(cart.rows[0]);
+
+        const cart = await pool.query(
+            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
+            [cartId]
+        );
+        res.status(200).send({ products: cart.rows });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
