@@ -1,8 +1,8 @@
 openapi: 3.0.4
 info:
-  title: Toy Store API
+  title: Store API
   version: 1.0.0
-  description: A basic API for an online toy store.
+  description: A basic API for an online store.
 paths:
   /products:
     summary: Get all of the products data.
@@ -10,7 +10,7 @@ paths:
       This path is used to retrieve all of the products data from the products
       database file.
     get:
-      summary: Gets the products data
+      summary: Gets all products data
       description: Retrieve the products information from the products database.
       operationId: get
       responses:
@@ -20,11 +20,8 @@ paths:
               examples:
                 products:
                   value: >-
-                    {"orders":[{"name":"Carey
-                    Maynard","id":"001","state":"pending"},{"name":"Angelo
-                    Ayala","id":"002","state":"canceled"},{"name":"Regina
-                    Yates","id":"003","state":"pending"},{"name":"Elliott
-                    Mcclure","id":"004","state":"pending"}]}
+                    [{"id":"1", "name":"rabbit", "brand":"Toys Inc.", "price_cents":"1999"},
+                    {"id":"2", name":"tiger", "brand":"Plushie Luv", "price_cents":"1599"}]
           description: Success
         '404':
           content:
@@ -64,7 +61,7 @@ paths:
             application/json:
               examples:
                 order:
-                  value: {}
+                  value: {"id":"1", "name":"rabbit", "brand":"Toys Inc.", "price_cents":"1999"}
           description: Success
         '404':
           content:
@@ -233,7 +230,7 @@ paths:
       tags:
         - User
   
-  # or user/me assumed by default
+  # or users/me assumed by default
   /users/{id}:
     get:
       summary: Gets a user by ID.
@@ -345,7 +342,7 @@ paths:
             text/plain; charset=utf-8:
               examples:
                 Error:
-                  value: Server Error
+                  value: Login Failed
           description: Internal Server Error
       tags:
         - User
@@ -360,7 +357,7 @@ paths:
             application/json:
               examples:
                 order:
-                  value: {status: success}
+                  value: Successful logout
           description: Success
         '401':
           content:
@@ -401,7 +398,7 @@ paths:
               examples:
                 Message:
                   value:
-                    cartId: cart_id
+                    { cartId: cart_id }
           description: Success
         '400':
           content:
@@ -478,7 +475,17 @@ paths:
             application/json:
               examples:
                 order:
-                  value: {}
+                  value:  {"products": [
+                            {
+                                "cart_id": 51,
+                                "product_id": 2,
+                                "quantity": 1,
+                                "id": 2,
+                                "name": "tiger",
+                                "brand": "Plushie Luv",
+                                "price_cents": 1599
+                            }
+                          ]}
           description: Success
         '400':
           content:
