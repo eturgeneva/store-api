@@ -1,29 +1,12 @@
 const { app, pool } = require('../app');
 const request = require('supertest');
 const assert = require('node:assert');
-// const { it, describe } = require('node:test');
+const bcrypt = require('bcrypt');
 
 let user = {};
 let isAuthenticated = true;
 
-// Can be inside a test
-// Adds this middleware as the first one in the middleware stack
-// app.stack.unshift({
-//     route: '',
-//     handle: function (req, res, next) {
-//         req.user = user;
-
-//         req.isAuthenticated = () => isAuthenticated;
-
-//         // req.user = {};
-
-//         // req.isAuthenticated = function () {
-//         //     return true;
-//         // };
-
-//         next();
-//     }
-// });
+// Tests are outdated!!!
 
 describe('GET /', () => {
   it('responds with json', (done) => {
@@ -40,16 +23,11 @@ describe('POST /login', () => {
   it('responds with json and 200 status, log a user in', async () => {
     const loginResponse = await request(app)
       .post('/login')
-      // .send(JSON.stringify({
-      //   email: 'evgesha@mail.com',
-      //   password: '12345'
-      // }))
       .send({
         email: 'evgesha@mail.com',
         password: '12345'
       })
       .expect(200)
-    // console.log(loginResponse);
     const cookie = loginResponse.header['set-cookie'];
     
     // Checking that the user has access to profile
@@ -65,10 +43,6 @@ describe('POST /logout', () => {
   it('responds with 200 status and logout message', async () => {
     const loginResponse = await request(app)
       .post('/login')
-      // .send(JSON.stringify({
-      //   email: 'evgesha@mail.com',
-      //   password: '12345'
-      // }))
       .send({
         email: 'evgesha@mail.com',
         password: '12345'
@@ -100,18 +74,11 @@ describe('POST /users', () => {
     it('responds with json, creates a new user', async () => {
         const res = await request(app)
             .post('/users')
-            // .send(JSON.stringify({ 
-            //     username: 'Cat',
-            //     first_name: 'Vasya',
-            //     last_name: 'Pupkin',
-            //     email: 'email@mail.com',
-            //     password: '123'
-            // }))
             .send({ 
-                username: 'Cat',
-                first_name: 'Vasya',
-                last_name: 'Pupkin',
-                email: 'email@mail.com',
+                username: 'TestUser',
+                first_name: 'Test',
+                last_name: 'User',
+                email: 'user@test.com',
                 password: '123'
             })
             .expect(201)
@@ -129,9 +96,9 @@ describe('POST /users', () => {
         const user = userResult.rows[0];
         console.log(user);
         assert.equal(user.id, res.body.userId);
-        assert.equal(user.first_name, 'Vasya');
-        assert.equal(user.last_name, 'Pupkin');
-        assert.equal(user.email, 'email@mail.com');
-        assert.equal(user.password, '123');
+        assert.equal(user.first_name, 'Test');
+        assert.equal(user.last_name, 'User');
+        assert.equal(user.email, 'user@test.com');
+        assert.ok(bcrypt.compare('123', user.password));
     })
 })
