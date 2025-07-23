@@ -51,19 +51,9 @@ CREATE TABLE carts_products (
 
 -- Importing a products csv (via psql)
 COPY products (name, brand, price_cents)
-FROM 'C:/Users/Elena/Desktop/store-api/db/db_products.csv'
+FROM './db_products.csv'
 DELIMITER ','
 CSV HEADER;
 
 -- Or try this
-\copy products (name, brand, price_cents) FROM 'C:/Users/Elena/Desktop/store-api/db/db_products.csv' DELIMITER ',' CSV HEADER;
-
--- Importing a customers csv (via psql)
-COPY products (name, brand, price_cents)
-FROM 'C:/Users/Elena/Desktop/store-api/db/db_customers.csv'
-DELIMITER ','
-CSV HEADER;
-
--- Adding url column to the products table
-ALTER TABLE products
-ADD img_url varchar;
+\copy products (name, brand, price_cents) FROM './db_products.csv' DELIMITER ',' CSV HEADER;

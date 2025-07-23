@@ -24,7 +24,6 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,	
     saveUninitialized: false,
-    // saveUninitialized: true,
     cookie: {
       httpOnly: true,
       secure: false, // Change to true in production with HTTPS
@@ -32,13 +31,11 @@ app.use(
   }	
   })	
 );	
-// THEN initialize Passport	
+
 app.use(passport.initialize());	
 app.use(passport.session());	
 
 app.use(logReqestStatus);
-
-// Postgres Setup
 
 // Local Strategy
 passport.use(new LocalStrategy(
@@ -55,16 +52,13 @@ passport.use(new LocalStrategy(
         return done(null, false, { message:'Incorrect email or password' });
       }
       // If password is incorrect
-      // const storedPassword = userResult.rows[0].password;
-      // if (password !== storedPassword) return done(null, false, { message:'Incorrect email or password' });
-      
       const storedPasswordHash = userResult.rows[0].password;
       const passwordMatch = await comparePasswords(password, storedPasswordHash);
       if (!passwordMatch) {
         return done(null, false, { message:'Incorrect email or password' });
       }
       
-      return done(null, userResult.rows[0]); // to return the actual user
+      return done(null, userResult.rows[0]);
     } catch (err) {
       return done(err);
     }
@@ -75,7 +69,6 @@ passport.use(new LocalStrategy(
 passport.use(new GoogleStrategy({
     clientID: process.env['GOOGLE_CLIENT_ID'],
     clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-    // callbackURL: 'http://localhost:3000',
     callbackURL: 'http://localhost:3000/oauth2/redirect/google',
     scope: [ 'profile', 'email' ],
     state: true
@@ -143,8 +136,7 @@ app.get('/', (req, res) => {
   res.json({ description: 'e-commerce REST API using Express, Node.js, and Postgres' });
 });
 
-// User login:
-// app.post('/login', passport.authenticate('local'), (req, res, next) => {
+// User login
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -173,11 +165,11 @@ app.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-// User login Google OAuth 2.0:
-// redirects the user to the Google, where they will authenticate:
+// User login Google OAuth 2.0
+// redirects the user to the Google, where they will authenticate
 app.get('/login/google', passport.authenticate('google'));
 
-// processes the authentication response and logs the user in, after Google redirects the user back to the app:
+// processes the authentication response and logs the user in, after Google redirects the user back to the app
 app.get('/oauth2/redirect/google',
   (req, res, next) => {
     req.cartId = req.session.cartId;
@@ -189,30 +181,19 @@ app.get('/oauth2/redirect/google',
       req.session.cartId = req.cartId;
       pool.query('UPDATE carts SET customer_id = $1 WHERE id = $2', [req.user.id, req.cartId]);
     }
-    // res.redirect('/');
     res.redirect('http://localhost:5173/profile');
 });
 
-// User registration:
+// User registration
 app.post('/users', async (req, res, next) => {
   const { username, first_name, last_name, email, password } = req.body;
 
-  // const passwordHash = async (password, saltRounds) => {
-  //   try {
-  //     const salt = await bcrypt.genSalt(saltRounds);
-  //     return await bcrypt.hash(password, salt);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  //   return null;
-  // }
   const saltRounds = 15;
   const hashedPassword = await passwordHash(password, saltRounds);
 
   try {
       const newUser = await pool.query(
         'INSERT INTO customers (username, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-        // [username, first_name, last_name, email, password]
         [username, first_name, last_name, email, hashedPassword]
       )
       if (newUser.rows.length === 1) {
@@ -249,7 +230,7 @@ app.get('/users/me', (req, res, next) => {
     })
 });
 
-// User update info:
+// User update info
 app.put('/users/:id', async (req, res, next) => {
   const { first_name, last_name, address } = req.body;
   const userId = req.params.id;
@@ -257,7 +238,6 @@ app.put('/users/:id', async (req, res, next) => {
       const updatedUser = await pool.query(
       'UPDATE customers SET first_name = $1, last_name = $2, address = $3 WHERE id = $4 RETURNING *',
       [first_name, last_name, address, userId]
-      // id: req.user.id,
     )
     if (updatedUser.rows.length === 1) {
           res.status(201).send({ userId: updatedUser.rows[0] });
@@ -270,7 +250,7 @@ app.put('/users/:id', async (req, res, next) => {
   }
 })
 
-// User logout:
+// User logout
 app.all('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) return next(err);
@@ -278,17 +258,15 @@ app.all('/logout', (req, res, next) => {
   });
 });
 
-// Products:
+// Products
 const productsRouter = require('./productsRouter.js');
 app.use('/products', productsRouter);
 
-// Cart:
+// Cart
 const cartsRouter = require('./cartsRouter.js');
 app.use('/carts', cartsRouter);
 
-// app.listen(PORT, () => {
-//     console.log(`App running on http://localhost:${PORT}`);
-// })
+
 
 function logReqestStatus(req, res, next) {
     if (req) {
@@ -303,12 +281,11 @@ function checkIfAuthenticated(req, res, next) {
         next();
     } else {
         console.log('Please login');
-        // res.redirect('/login');
         res.status(401).send();
     }
 }
 
-const passwordHash = async (password, saltRounds) => {
+async function passwordHash(password, saltRounds) {
   try {
     const salt = await bcrypt.genSalt(saltRounds);
     return await bcrypt.hash(password, salt);
@@ -316,10 +293,9 @@ const passwordHash = async (password, saltRounds) => {
     console.error('Hashing falied', err);
     throw new Error('Failed to hash password');
   }
-  return null;
 }
 
-const comparePasswords = async (password, hash) => {
+async function comparePasswords(password, hash) {
   try {
     const matchFound = await bcrypt.compare(password, hash);
     return matchFound;
@@ -327,7 +303,6 @@ const comparePasswords = async (password, hash) => {
     console.error(err);
     throw new Error('Passwords don\'t match');
   }
-  return false;
 }
 
 module.exports = { app, pool };

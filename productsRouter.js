@@ -2,7 +2,7 @@ const express = require('express');
 const productsRouter = express.Router();
 const { pool } = require('./pool');
 
-// Get all products:
+// Get all products
 productsRouter.get('/', async (req, res, next) => {
     try {
         const products = await pool.query('SELECT * FROM products');
@@ -14,6 +14,7 @@ productsRouter.get('/', async (req, res, next) => {
     }
 });
 
+// Get product by ID
 productsRouter.get('/:id', async (req, res, next) => {
     try {
         const product = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
