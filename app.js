@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 // Session middleware:
 app.use(	
   session({	
-    secret: 'mySecret',	
+    secret: process.env.SESSION_SECRET,
     resave: false,	
     saveUninitialized: false,
     // saveUninitialized: true,
@@ -57,11 +57,13 @@ passport.use(new LocalStrategy(
       // If password is incorrect
       // const storedPassword = userResult.rows[0].password;
       // if (password !== storedPassword) return done(null, false, { message:'Incorrect email or password' });
+      
       const storedPasswordHash = userResult.rows[0].password;
       const passwordMatch = await comparePasswords(password, storedPasswordHash);
       if (!passwordMatch) {
         return done(null, false, { message:'Incorrect email or password' });
       }
+      
       return done(null, userResult.rows[0]); // to return the actual user
     } catch (err) {
       return done(err);
