@@ -5,7 +5,7 @@ CREATE TABLE customers (
     email varchar(100) UNIQUE,
     address varchar(100),
     username varchar(50) UNIQUE,
-    password varchar(50)
+    password varchar(100)
 );
 
 CREATE TABLE federated_credentials (
