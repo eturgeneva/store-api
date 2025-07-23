@@ -6,6 +6,7 @@ const cors = require('cors');
 const { pool } = require('./pool');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20');
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -54,9 +55,13 @@ passport.use(new LocalStrategy(
         return done(null, false, { message:'Incorrect email or password' });
       }
       // If password is incorrect
-      const storedPassword = userResult.rows[0].password;
-      if (password !== storedPassword) return done(null, false, { message:'Incorrect email or password' });
-      
+      // const storedPassword = userResult.rows[0].password;
+      // if (password !== storedPassword) return done(null, false, { message:'Incorrect email or password' });
+      const storedPasswordHash = userResult.rows[0].password;
+      const passwordMatch = await comparePasswords(password, storedPasswordHash);
+      if (!passwordMatch) {
+        return done(null, false, { message:'Incorrect email or password' });
+      }
       return done(null, userResult.rows[0]); // to return the actual user
     } catch (err) {
       return done(err);
@@ -189,10 +194,24 @@ app.get('/oauth2/redirect/google',
 // User registration:
 app.post('/users', async (req, res, next) => {
   const { username, first_name, last_name, email, password } = req.body;
+
+  // const passwordHash = async (password, saltRounds) => {
+  //   try {
+  //     const salt = await bcrypt.genSalt(saltRounds);
+  //     return await bcrypt.hash(password, salt);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  //   return null;
+  // }
+  const saltRounds = 15;
+  const hashedPassword = await passwordHash(password, saltRounds);
+
   try {
       const newUser = await pool.query(
         'INSERT INTO customers (username, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-        [username, first_name, last_name, email, password]
+        // [username, first_name, last_name, email, password]
+        [username, first_name, last_name, email, hashedPassword]
       )
       if (newUser.rows.length === 1) {
         res.status(201).send({ userId: newUser.rows[0].id });
@@ -285,6 +304,28 @@ function checkIfAuthenticated(req, res, next) {
         // res.redirect('/login');
         res.status(401).send();
     }
+}
+
+const passwordHash = async (password, saltRounds) => {
+  try {
+    const salt = await bcrypt.genSalt(saltRounds);
+    return await bcrypt.hash(password, salt);
+  } catch (err) {
+    console.error('Hashing falied', err);
+    throw new Error('Failed to hash password');
+  }
+  return null;
+}
+
+const comparePasswords = async (password, hash) => {
+  try {
+    const matchFound = await bcrypt.compare(password, hash);
+    return matchFound;
+  } catch (err) {
+    console.error(err);
+    throw new Error('Passwords don\'t match');
+  }
+  return false;
 }
 
 module.exports = { app, pool };
