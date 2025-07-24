@@ -8,6 +8,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20');
 const bcrypt = require('bcrypt');
 
+//  /c/Users/Elena/ngrok http --domain aardvark-cool-weasel.ngrok-free.app 3000
+
 const app = express();
 
 app.use(cors({
