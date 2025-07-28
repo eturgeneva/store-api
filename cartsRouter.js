@@ -50,18 +50,25 @@ cartsRouter.put('/me', async (req, res, next) => {
         if (dbQuantity.rows.length === 1) {
      
             if (req.body.quantity === 0) {
-                await pool.query(
+                const deleteUpdate = await pool.query(
                     'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
                     [req.body.cartId, productId]
                 );
+                console.log('delete update', deleteUpdate);
+                if (deleteUpdate.rowCount !== 1) {
+                    return res.status(400).send('Unexpected error when removing product from cart');
+                }
 
             } else {
-                await pool.query(
+                const quantityUpdate = await pool.query(
                     'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
                     [req.body.quantity, productId, req.body.cartId]
                 );
+                if (quantityUpdate.rowCount !== 1) {
+                    return res.status(400).send('Failed to update cart');
+                }
             }
-            
+
         } else {
             const updateCart = await pool.query(
                 'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
