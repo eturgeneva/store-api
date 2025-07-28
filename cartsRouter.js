@@ -37,6 +37,10 @@ cartsRouter.post('/', async (req, res, next) => {
 cartsRouter.put('/me', async (req, res, next) => {
     const productId = req.body.productId;
     
+    if (req.body.quantity < 0) {
+        return res.status(400).send('Failed to update cart, number of items is too low');
+    }
+
     try {
         // Check quantity
         const dbQuantity = await pool.query(
@@ -44,10 +48,7 @@ cartsRouter.put('/me', async (req, res, next) => {
             [req.body.cartId, productId]
         );
         if (dbQuantity.rows.length === 1) {
-            // await pool.query(
-            //     'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
-            //     [dbQuantity.rows[0].quantity + 1, productId, req.body.cartId]
-            // );
+     
             if (req.body.quantity === 0) {
                 await pool.query(
                     'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
@@ -58,10 +59,6 @@ cartsRouter.put('/me', async (req, res, next) => {
                     [req.body.cartId]
                     );
                 return res.status(200).send({ products: joinedCartUpdate.rows });
-            }
-
-            if (req.body.quantity < 0) {
-                return res.status(400).send('Failed to update cart, number of items is too low');
             }
 
             await pool.query(
