@@ -36,7 +36,25 @@ cartsRouter.post('/', async (req, res, next) => {
 // Update cart
 cartsRouter.put('/me', async (req, res, next) => {
     const productId = req.body.productId;
+    
     try {
+        // Check quantity
+        const dbQuantity = await pool.query(
+            'SELECT * FROM carts_products WHERE cart_id = $1 AND product_id = $2',
+            [req.body.cartId, productId]
+        );
+        if (dbQuantity.rows.length === 1) {
+            await pool.query(
+                'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
+                [dbQuantity.rows[0].quantity + 1, productId, req.body.cartId]
+            );
+            const joinedCartUpdate = await pool.query(
+                'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
+                [req.body.cartId]
+            );
+            res.status(200).send({ products: joinedCartUpdate.rows });
+        }
+
         const updateCart = await pool.query(
             'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
             [req.body.cartId, productId, req.body.quantity]
