@@ -79,7 +79,7 @@ cartsRouter.put('/me', async (req, res, next) => {
             }
         }
         const joinedCartUpdate = await pool.query(
-            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
+            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
             [req.body.cartId]
         );
         res.status(200).send({ products: joinedCartUpdate.rows });
@@ -95,7 +95,7 @@ cartsRouter.get('/:cartId', async (req, res, next) => {
     const cartId = req.params.cartId;
     try {
         const cart = await pool.query(
-            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
+            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
             [cartId]
         );
         res.status(200).send({ products: cart.rows });
