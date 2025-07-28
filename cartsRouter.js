@@ -53,21 +53,23 @@ cartsRouter.put('/me', async (req, res, next) => {
                 [req.body.cartId]
             );
             res.status(200).send({ products: joinedCartUpdate.rows });
+            
+        } else {
+            const updateCart = await pool.query(
+                'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
+                [req.body.cartId, productId, req.body.quantity]
+            )
+            if (updateCart.rows.length === 1) {
+                const joinedCartUpdate = await pool.query(
+                    'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
+                    [req.body.cartId]
+                );
+                res.status(200).send({ products: joinedCartUpdate.rows });
+            } else {
+                res.status(400).send('Failed to update cart');
+            }
         }
 
-        const updateCart = await pool.query(
-            'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
-            [req.body.cartId, productId, req.body.quantity]
-        )
-        if (updateCart.rows.length === 1) {
-            const joinedCartUpdate = await pool.query(
-                'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
-                [req.body.cartId]
-            );
-            res.status(200).send({ products: joinedCartUpdate.rows });
-        } else {
-            res.status(400).send('Failed to update cart');
-        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
