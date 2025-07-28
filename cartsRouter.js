@@ -48,7 +48,7 @@ cartsRouter.put('/me', async (req, res, next) => {
             //     'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
             //     [dbQuantity.rows[0].quantity + 1, productId, req.body.cartId]
             // );
-            if (req.body.quantity < 0 && (dbQuantity.rows.quantity < Math.abs(req.body.quantity))) {
+            if (req.body.quantity < 0) {
                 res.status(400).send('Failed to update cart, number of items is too low');
             }
 
