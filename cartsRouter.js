@@ -54,38 +54,28 @@ cartsRouter.put('/me', async (req, res, next) => {
                     'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
                     [req.body.cartId, productId]
                 );
-                const joinedCartUpdate = await pool.query(
-                    'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
-                    [req.body.cartId]
-                    );
-                return res.status(200).send({ products: joinedCartUpdate.rows });
-            }
 
-            await pool.query(
-                'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
-                [req.body.quantity, productId, req.body.cartId]
-            );
-            const joinedCartUpdate = await pool.query(
-                'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
-                [req.body.cartId]
-            );
-            res.status(200).send({ products: joinedCartUpdate.rows });
+            } else {
+                await pool.query(
+                    'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
+                    [req.body.quantity, productId, req.body.cartId]
+                );
+            }
             
         } else {
             const updateCart = await pool.query(
                 'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
                 [req.body.cartId, productId, req.body.quantity]
             )
-            if (updateCart.rows.length === 1) {
-                const joinedCartUpdate = await pool.query(
-                    'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
-                    [req.body.cartId]
-                );
-                res.status(200).send({ products: joinedCartUpdate.rows });
-            } else {
-                res.status(400).send('Failed to update cart');
+            if (updateCart.rows.length !== 1) {
+                return res.status(400).send('Failed to update cart');
             }
         }
+        const joinedCartUpdate = await pool.query(
+            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1',
+            [req.body.cartId]
+        );
+        res.status(200).send({ products: joinedCartUpdate.rows });
 
     } catch (err) {
         console.error(err);
