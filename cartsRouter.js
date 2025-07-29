@@ -38,7 +38,7 @@ cartsRouter.put('/me', async (req, res, next) => {
     const productId = req.body.productId;
 
     // If we need to set a specific quantity:
-    // if (req.body.setQuantity) {
+  
         try {
             // Check product quantity in the cart
             const dbQuantity = await pool.query(
@@ -63,22 +63,22 @@ cartsRouter.put('/me', async (req, res, next) => {
                         console.log('delete update', deleteUpdate);
 
                         if (deleteUpdate.rowCount !== 1) {
-                            return res.status(400).send('Unexpected error when removing product from cart');
+                            return res.status(400).send('Failed to remove product from cart');
                         }
-                    } else {
-                        const quantityUpdate = await pool.query(
-                            'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
-                            [newQuantity, productId, req.body.cartId]
-                        );
-                        if (quantityUpdate.rowCount !== 1) {
-                            return res.status(400).send('Failed to update cart');
-                        }
-                        const joinedCartUpdate = await pool.query(
-                            'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
-                            [req.body.cartId]
-                        );
-                        return res.status(200).send({ products: joinedCartUpdate.rows });
                     }
+                    const quantityUpdate = await pool.query(
+                        'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
+                        [newQuantity, productId, req.body.cartId]
+                    );
+                    if (quantityUpdate.rowCount !== 1) {
+                        return res.status(400).send('Failed to update cart');
+                    }
+                    // Sending the updated cart
+                    const joinedCartUpdate = await pool.query(
+                        'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
+                        [req.body.cartId]
+                    );
+                    return res.status(200).send({ products: joinedCartUpdate.rows });
                 }
 
                 // setQuantity property
@@ -91,7 +91,7 @@ cartsRouter.put('/me', async (req, res, next) => {
                     console.log('delete update', deleteUpdate);
 
                     if (deleteUpdate.rowCount !== 1) {
-                        return res.status(400).send('Unexpected error when removing product from cart');
+                        return res.status(400).send('Failed to remove product from cart');
                     }
                 // If we're not supposed to delete the product
                 } else {
@@ -132,7 +132,6 @@ cartsRouter.put('/me', async (req, res, next) => {
             console.error(err);
             return res.status(500).send('Internal Server Error');
         }
-    // }
 })
 
 // cartsRouter.put('/me', async (req, res, next) => {
