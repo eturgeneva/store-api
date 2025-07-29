@@ -38,7 +38,7 @@ cartsRouter.put('/me', async (req, res, next) => {
     const productId = req.body.productId;
 
     // If we need to set a specific quantity:
-    if (req.body.setQuantity) {
+    // if (req.body.setQuantity) {
         try {
             // Check product quantity in the cart
             const dbQuantity = await pool.query(
@@ -47,7 +47,34 @@ cartsRouter.put('/me', async (req, res, next) => {
             );
             // If a specific product is already in the cart
             if (dbQuantity.rows.length === 1) {
+                
+                // quantityUpdate property
+                if (req.body.quantityUpdate) {
+                    let newQuantity = dbQuantity.rows[0].quantity + req.body.quantityUpdate;
+                    if (newQuantity < 0) {
+                        return res.status(400).send('Failed to update cart');
+                    }
+                } else if (newQuantity === 0) {
+                    const deleteUpdate = await pool.query(
+                        'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
+                        [req.body.cartId, productId]
+                    );
+                    console.log('delete update', deleteUpdate);
 
+                    if (deleteUpdate.rowCount !== 1) {
+                        return res.status(400).send('Unexpected error when removing product from cart');
+                    }
+                } else {
+                    const quantityUpdate = await pool.query(
+                        'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
+                        [newQuantity, productId, req.body.cartId]
+                    );
+                    if (quantityUpdate.rowCount !== 1) {
+                        return res.status(400).send('Failed to update cart');
+                    }
+                }
+
+                // setQuantity property
                 // If we're supposed to remove the product from the cart entirely
                 if (req.body.setQuantity === 0) {
                     const deleteUpdate = await pool.query(
@@ -80,7 +107,7 @@ cartsRouter.put('/me', async (req, res, next) => {
             console.error(err);
             res.status(500).send('Internal Server Error');
         }
-    }
+    // }
 })
 
 // cartsRouter.put('/me', async (req, res, next) => {
