@@ -36,54 +36,24 @@ cartsRouter.post('/', async (req, res, next) => {
 // Update cart
 cartsRouter.put('/me', async (req, res, next) => {
     const productId = req.body.productId;
-
-    // If we need to set a specific quantity:
   
-        try {
-            // Check product quantity in the cart
-            const dbQuantity = await pool.query(
-                'SELECT * FROM carts_products WHERE cart_id = $1 AND product_id = $2',
-                [req.body.cartId, productId]
-            );
-            // If a specific product is already in the cart
-            if (dbQuantity.rows.length === 1) {
+    try {
+        // Check product quantity in the cart
+        const dbQuantity = await pool.query(
+            'SELECT * FROM carts_products WHERE cart_id = $1 AND product_id = $2',
+            [req.body.cartId, productId]
+        );
+        // If a specific product is already in the cart
+        if (dbQuantity.rows.length === 1) {
 
-                // quantityUpdate property
-                if (req.body.quantityUpdate) {
-                    let newQuantity = dbQuantity.rows[0].quantity + req.body.quantityUpdate;
-                    if (newQuantity < 0) {
-                        return res.status(400).send('Failed to update cart');
-                    }
-
-                    if (newQuantity === 0) {
-                        const deleteUpdate = await pool.query(
-                            'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
-                            [req.body.cartId, productId]
-                        );
-                        console.log('delete update', deleteUpdate);
-
-                        if (deleteUpdate.rowCount !== 1) {
-                            return res.status(400).send('Failed to remove product from cart');
-                        }
-                    }
-                    const quantityUpdate = await pool.query(
-                        'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
-                        [newQuantity, productId, req.body.cartId]
-                    );
-                    if (quantityUpdate.rowCount !== 1) {
-                        return res.status(400).send('Failed to update cart');
-                    }
-                    // Sending the updated cart
-                    const joinedCartUpdate = await pool.query(
-                        'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
-                        [req.body.cartId]
-                    );
-                    return res.status(200).send({ products: joinedCartUpdate.rows });
+            // quantityUpdate property
+            if (req.body.quantityUpdate) {
+                let newQuantity = dbQuantity.rows[0].quantity + req.body.quantityUpdate;
+                if (newQuantity < 0) {
+                    return res.status(400).send('Failed to update cart');
                 }
 
-                // setQuantity property
-                // If we're supposed to remove the product from the cart entirely
-                if (req.body.setQuantity === 0) {
+                if (newQuantity === 0) {
                     const deleteUpdate = await pool.query(
                         'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
                         [req.body.cartId, productId]
@@ -93,45 +63,78 @@ cartsRouter.put('/me', async (req, res, next) => {
                     if (deleteUpdate.rowCount !== 1) {
                         return res.status(400).send('Failed to remove product from cart');
                     }
-                // If we're not supposed to delete the product
-                } else {
-                    const quantityUpdate = await pool.query(
-                        'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
-                        [req.body.setQuantity, productId, req.body.cartId]
-                    );
-                    if (quantityUpdate.rowCount !== 1) {
-                        return res.status(400).send('Failed to update cart');
-                    }
-                }
-                // Sending updated cart
-                const joinedCartUpdate = await pool.query(
-                    'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
-                    [req.body.cartId]
-                );
-                return res.status(200).send({ products: joinedCartUpdate.rows });
-
-            // If a specific product is NOT in the cart yet
-            } else {
-                if ((req.body.quantityUpdate && req.body.quantityUpdate > 0) || (req.body.setQuantity && req.body.setQuantity > 0)) {
-                    const updateCart = await pool.query(
-                        'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
-                        [req.body.cartId, productId, req.body.quantityUpdate || req.body.setQuantity]
-                    )
-                    if (updateCart.rows.length !== 1) {
-                        return res.status(400).send('Failed to update cart');
-                    }
                     const joinedCartUpdate = await pool.query(
                         'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
                         [req.body.cartId]
                     );
                     return res.status(200).send({ products: joinedCartUpdate.rows });
                 }
+                const quantityUpdate = await pool.query(
+                    'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
+                    [newQuantity, productId, req.body.cartId]
+                );
+                if (quantityUpdate.rowCount !== 1) {
+                    return res.status(400).send('Failed to update cart');
+                }
+                // Sending the updated cart
+                const joinedCartUpdate = await pool.query(
+                    'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
+                    [req.body.cartId]
+                );
+                return res.status(200).send({ products: joinedCartUpdate.rows });
             }
 
-        } catch (err) {
-            console.error(err);
-            return res.status(500).send('Internal Server Error');
+            // setQuantity property
+            // If we're supposed to remove the product from the cart entirely
+            if (req.body.setQuantity === 0) {
+                const deleteUpdate = await pool.query(
+                    'DELETE FROM carts_products WHERE cart_id = $1 AND product_id = $2',
+                    [req.body.cartId, productId]
+                );
+                console.log('delete update', deleteUpdate);
+
+                if (deleteUpdate.rowCount !== 1) {
+                    return res.status(400).send('Failed to remove product from cart');
+                }
+            // If we're not supposed to delete the product
+            } else {
+                const quantityUpdate = await pool.query(
+                    'UPDATE carts_products SET quantity = $1 WHERE product_id = $2 AND cart_id = $3',
+                    [req.body.setQuantity, productId, req.body.cartId]
+                );
+                if (quantityUpdate.rowCount !== 1) {
+                    return res.status(400).send('Failed to update cart');
+                }
+            }
+            // Sending updated cart
+            const joinedCartUpdate = await pool.query(
+                'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
+                [req.body.cartId]
+            );
+            return res.status(200).send({ products: joinedCartUpdate.rows });
+
+        // If a specific product is NOT in the cart yet
+        } else {
+            if ((req.body.quantityUpdate && req.body.quantityUpdate > 0) || (req.body.setQuantity && req.body.setQuantity > 0)) {
+                const updateCart = await pool.query(
+                    'INSERT INTO carts_products (cart_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *',
+                    [req.body.cartId, productId, req.body.quantityUpdate || req.body.setQuantity]
+                )
+                if (updateCart.rows.length !== 1) {
+                    return res.status(400).send('Failed to update cart');
+                }
+                const joinedCartUpdate = await pool.query(
+                    'SELECT * FROM carts_products JOIN products ON carts_products.product_id = products.id WHERE carts_products.cart_id = $1 ORDER BY product_id',
+                    [req.body.cartId]
+                );
+                return res.status(200).send({ products: joinedCartUpdate.rows });
+            }
         }
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
 })
 
 // cartsRouter.put('/me', async (req, res, next) => {
