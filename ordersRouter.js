@@ -108,7 +108,11 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
             if (orderDetails.rows.length === 0) {
                 return res.status(400).send('Failed to receive order details');
             }
-            res.status(200).send({ orderDetails: orderDetails.rows });
+            // res.status(200).send({ orderDetails: orderDetails.rows });
+            res.status(200).send({ 
+                orderId: orderId,
+                items: orderDetails.rows 
+            });
         }
     } catch (err) {
         console.error(err);
