@@ -268,6 +268,9 @@ app.use('/products', productsRouter);
 const cartsRouter = require('./cartsRouter.js');
 app.use('/carts', cartsRouter);
 
+// Orders
+const ordersRouter = require('./ordersRouter.js');
+app.use('/orders', ordersRouter);
 
 
 function logReqestStatus(req, res, next) {

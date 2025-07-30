@@ -25,7 +25,7 @@ CREATE TABLE products (
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id),
-    placed_at datetime,
+    placed_at TIMESTAMP DEFAULT NOW(),
     status varchar(100)
 );
 
