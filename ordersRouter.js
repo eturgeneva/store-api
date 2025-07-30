@@ -115,7 +115,7 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
             res.status(200).send({ 
                 orderId: orderId,
                 items: orderDetails.rows,
-                priceTotal: orderPriceTotal.rows 
+                priceTotal: orderPriceTotal.rows[0].total_price 
             });
         }
     } catch (err) {
