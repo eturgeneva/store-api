@@ -101,7 +101,8 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
         } else {
             // Order ID found
             const orderDetails = await pool.query(
-                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE orders.id = $1',
+                // 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE orders.id = $1',
+                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
                 [orderId]
             );
             if (orderDetails.rows.length === 0) {
