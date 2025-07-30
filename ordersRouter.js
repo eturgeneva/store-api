@@ -67,7 +67,8 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
 
     try {
         const ordersByUserId = await pool.query(
-            'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1',
+            // 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1 GROUP BY orders.id',
+            'SELECT orders.id, COUNT(orders_products.product_id) AS product_count FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1 GROUP BY orders.id',
             [userId]
         );
         res.status(200).send({ orders: ordersByUserId.rows });
