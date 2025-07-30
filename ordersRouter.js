@@ -104,7 +104,7 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
                 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE orders.id = $1',
                 [orderId]
             );
-            if (orderDetails.rows.length !== 1) {
+            if (orderDetails.rows.length === 0) {
                 return res.status(400).send('Failed to receive order details');
             }
             res.status(200).send({ orderDetails: orderDetails.rows });
