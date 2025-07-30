@@ -81,6 +81,37 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
 });
 
 // Get an order by ID
+ordersRouter.get('/:orderId', async (req, res, next) => {
+    // const orderId = req.body.orderId;
+    const orderId = req.params.id;
 
+    if (orderId <= 0) {
+        return res.status(400).send('Invalid order id');
+    }
+    
+    try {
+        const checkOrderId = await pool.query(
+            'SELECT * FROM orders WHERE order.id = $1',
+            [orderId]
+        )
+        // Order ID not found
+        if (checkOrderId.rows.length !== 1) {
+            return res.status(404).send('No order with this ID found');
+        } else {
+            // Order ID found
+            const orderDetails = await pool.query(
+                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE order.id = $1',
+                [orderId]
+            );
+            if (orderDetails.rows.length !== 1) {
+                return res.status(400).send('Failed to receive order details');
+            }
+            res.status(200).send({ orderDetails: orderDetails.rows });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+})
 
 module.exports = ordersRouter;
