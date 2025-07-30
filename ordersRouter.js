@@ -56,6 +56,28 @@ ordersRouter.post('/', async (req, res, next) => {
     }
 });
 
+// Get all orders placed by a user
+ordersRouter.get('/users/:userId', async (req, res, next) => {
+    const userId = req.user.id;
+    console.log('Request user ID', userId);
+
+    if (!userId) {
+        return res.status(404).send('No order history found');
+    }
+
+    try {
+        const ordersByUserId = await pool.query(
+            'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1',
+            [userId]
+        );
+        res.status(200).send({ orders: ordersByUserId.rows });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+
+});
+
 // Get an order by ID
 
 
