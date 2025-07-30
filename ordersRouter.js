@@ -6,6 +6,7 @@ const { pool } = require('./pool');
 ordersRouter.post('/', async (req, res, next) => {
     const { products } = req.body;
     console.log('Products from request body', products);
+    console.log('Req session cart ID', req.session.cartId);
     
     try {
         const newOrder = await pool.query(
@@ -30,6 +31,9 @@ ordersRouter.post('/', async (req, res, next) => {
             );
             console.log('Placed order details', orderDetails.rows);
 
+            req.session.cartId = null;
+            console.log('Req session cart ID', req.session.cartId);
+
             res.status(201).send({ order: orderDetails.rows });
 
         } else {
@@ -40,8 +44,6 @@ ordersRouter.post('/', async (req, res, next) => {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
-
-
 });
 
 // Get an order by ID
