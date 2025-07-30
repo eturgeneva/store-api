@@ -83,7 +83,8 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
 // Get an order by ID
 ordersRouter.get('/:orderId', async (req, res, next) => {
     // const orderId = req.body.orderId;
-    const orderId = req.params.id;
+    const orderId = req.params.orderId;
+    console.log('Req params orderId', orderId);
 
     if (orderId <= 0) {
         return res.status(400).send('Invalid order id');
@@ -91,7 +92,7 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
     
     try {
         const checkOrderId = await pool.query(
-            'SELECT * FROM orders WHERE order.id = $1',
+            'SELECT * FROM orders WHERE id = $1',
             [orderId]
         )
         // Order ID not found
@@ -100,7 +101,7 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
         } else {
             // Order ID found
             const orderDetails = await pool.query(
-                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE order.id = $1',
+                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE orders.id = $1',
                 [orderId]
             );
             if (orderDetails.rows.length !== 1) {
