@@ -3,7 +3,7 @@ const ordersRouter = express.Router();
 const { pool } = require('./pool');
 
 // Place a new order
-ordersRouter.post('/', async (req, resizeBy, next) => {
+ordersRouter.post('/', async (req, res, next) => {
     try {
         const newOrder = await pool.query(
             'INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING *',
