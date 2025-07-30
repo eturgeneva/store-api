@@ -41,6 +41,7 @@ ordersRouter.post('/', async (req, res, next) => {
             );
             console.log('Placed order details', orderDetails.rows);
 
+            // Resetting session cart ID after checkout
             req.session.cartId = null;
             console.log('Req session cart ID', req.session.cartId);
 
@@ -67,8 +68,6 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
 
     try {
         const ordersByUserId = await pool.query(
-            // 'SELECT orders.id, COUNT(orders_products.product_id) AS product_count FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1 GROUP BY orders.id',
-            // 'SELECT orders.id, orders.status, SUM(orders_products.quantity) AS product_count, SUM(orders_products.price_cents) AS total_price FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1 GROUP BY orders.id',
             'SELECT orders.id, orders.status, SUM(orders_products.quantity) AS product_count, SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1 GROUP BY orders.id',
             [userId]
         );
@@ -101,17 +100,22 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
         } else {
             // Order ID found
             const orderDetails = await pool.query(
-                // 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE orders.id = $1',
                 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
                 [orderId]
             );
-            if (orderDetails.rows.length === 0) {
+            const orderPriceTotal = await pool.query(
+                'SELECT SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders_products WHERE order_id = $1',
+                [orderId]
+            );
+
+            if (orderDetails.rows.length === 0 || orderPriceTotal.rows.length === 0) {
                 return res.status(400).send('Failed to receive order details');
             }
             // res.status(200).send({ orderDetails: orderDetails.rows });
             res.status(200).send({ 
                 orderId: orderId,
-                items: orderDetails.rows 
+                items: orderDetails.rows,
+                priceTotal: orderPriceTotal.rows 
             });
         }
     } catch (err) {
