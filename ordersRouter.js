@@ -5,6 +5,11 @@ const { pool } = require('./pool');
 // Place a new order
 ordersRouter.post('/', async (req, res, next) => {
     const { products } = req.body;
+    
+    if (!Array.isArray(products) || products.length === 0) {
+        return res.status(400).send('Products must be a non-empty array');
+    }
+
     console.log('Products from request body', products);
     console.log('Req session cart ID', req.session.cartId);
     
@@ -15,14 +20,19 @@ ordersRouter.post('/', async (req, res, next) => {
         )
         if (newOrder.rows.length === 1) {
             // Adding order info into the database:
-            await Promise.all(
-                products.map(product => {
-                    return pool.query(
-                        'INSERT INTO orders_products (product_id, order_id, quantity, price_cents) VALUES ($1, $2, $3, $4) RETURNING *',
-                        [product.product_id, newOrder.rows[0].id, product.quantity, product.price_cents]
-                    )
-                })
-            );
+            try {
+                await Promise.all(
+                    products.map(product => {
+                        return pool.query(
+                            'INSERT INTO orders_products (product_id, order_id, quantity, price_cents) VALUES ($1, $2, $3, $4) RETURNING *',
+                            [product.product_id, newOrder.rows[0].id, product.quantity, product.price_cents]
+                        )
+                    })
+                );
+            } catch (err) {
+                console.error(err);
+                return res.status(500).send('Failed to add products to order');
+            }
     
             // Combined result from orders and orders_products
             const orderDetails = await pool.query(
