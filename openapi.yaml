@@ -117,6 +117,46 @@ paths:
           description: Internal Server Error
       tags:
         - Order
+  /orders/user/{userId}:
+    summary: Get all orders placed by a user
+    description: This path is used to get all orders made by a soecific user from the database.
+    get:
+      summary: Gets all orders placed by a specific user.
+      description: >-
+        This operation retrieves all orders from the orders database by a matching
+        user id.
+      operationId: getUserOrders
+      parameters:
+        - name: userId
+          in: path
+          description: The id of the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                order:
+                  value: {}
+          description: Success
+        '404':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Not found
+          description: Order not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - Order
   /orders/{id}:
     get:
       summary: Gets an order by ID.
