@@ -99,26 +99,46 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
             return res.status(404).send('No order with this ID found');
         } else {
             // Order ID found
-            const orderDetails = await pool.query(
+            const orderItems = await pool.query(
                 // 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
-                'SELECT orders.id AS order_id, orders.customer_id, products.id AS product_id, products.name, products.brand, products.price_cents, orders.status AS order_status, orders_products.quantity FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
+                `SELECT orders.customer_id, 
+                        products.id AS product_id, 
+                        products.name, 
+                        products.brand, 
+                        products.price_cents, 
+                        orders_products.quantity 
+                    FROM orders 
+                    JOIN orders_products 
+                        ON orders.id = orders_products.order_id 
+                    JOIN products 
+                        ON orders_products.product_id = products.id 
+                    WHERE orders.id = $1`,
                 [orderId]
             );
-            console.log(orderDetails);
-            const orderPriceTotal = await pool.query(
-                'SELECT SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders_products WHERE order_id = $1',
+            console.log(orderItems);
+            const orderDetails = await pool.query(
+                // 'SELECT SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders_products WHERE order_id = $1',
+                `SELECT orders.placed_at,
+                        orders.status AS order_status,
+                        SUM(orders_products.price_cents * orders_products.quantity) AS total_price
+                FROM orders 
+                JOIN orders_products
+                    ON orders.id = orders_products.order_id 
+                WHERE orders.id = $1
+                GROUP BY orders.id`,
                 [orderId]
             );
 
-            if (orderDetails.rows.length === 0 || orderPriceTotal.rows.length === 0) {
+            if (orderItems.rows.length === 0 || orderDetails.rows.length === 0) {
                 return res.status(400).send('Failed to receive order details');
             }
             // res.status(200).send({ orderDetails: orderDetails.rows });
             res.status(200).send({ 
                 orderId: orderId,
-                items: orderDetails.rows,
-                priceTotal: orderPriceTotal.rows[0].total_price,
-                status:  orderDetails.rows[0].order_status
+                items: orderItems.rows,
+                priceTotal: orderDetails.rows[0].total_price,
+                status:  orderDetails.rows[0].order_status,
+                placedAt: orderDetails.rows[0].placed_at,
             });
         }
     } catch (err) {
