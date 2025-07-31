@@ -100,9 +100,11 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
         } else {
             // Order ID found
             const orderDetails = await pool.query(
-                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
+                // 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
+                'SELECT orders.id AS order_id, orders.customer_id, products.id AS product_id, products.name, products.brand, products.price_cents, orders.status AS order_status, orders_products.quantity FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
                 [orderId]
             );
+            console.log(orderDetails);
             const orderPriceTotal = await pool.query(
                 'SELECT SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders_products WHERE order_id = $1',
                 [orderId]
@@ -115,7 +117,8 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
             res.status(200).send({ 
                 orderId: orderId,
                 items: orderDetails.rows,
-                priceTotal: orderPriceTotal.rows[0].total_price 
+                priceTotal: orderPriceTotal.rows[0].total_price,
+                status:  orderDetails.rows[0].order_status
             });
         }
     } catch (err) {
