@@ -19,8 +19,18 @@ wishlistsRouter.post('/', async (req, res, next) => {
         );
         if (checkUserId.rows.length !== 1) {
             return res.status(400).send('Unable to create wishlist, user does not exist');
-
+        
         } else {
+            // Valid user ID, but the user already has a wishlist
+            const checkUserWishlist = await pool.query(
+                `SELECT customer_id FROM wishlists
+                WHERE customer_id = $1`,
+                [userId]
+            );
+            if (checkUserWishlist.rows.length === 1) {
+                return res.status(400).send('The user already has a wishlist');
+            }
+            
             const newWishlist = await pool.query(
                 `INSERT INTO wishlists (customer_id)
                 VALUES ($1)
