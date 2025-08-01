@@ -15,7 +15,9 @@ ordersRouter.post('/', async (req, res, next) => {
     
     try {
         const newOrder = await pool.query(
-            'INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING *',
+            `INSERT INTO orders (customer_id, status) 
+            VALUES ($1, $2) 
+            RETURNING *`,
             [req.user?.id ?? null, 'received']
         )
         if (newOrder.rows.length === 1) {
@@ -24,7 +26,9 @@ ordersRouter.post('/', async (req, res, next) => {
                 await Promise.all(
                     products.map(product => {
                         return pool.query(
-                            'INSERT INTO orders_products (product_id, order_id, quantity, price_cents) VALUES ($1, $2, $3, $4) RETURNING *',
+                            `INSERT INTO orders_products (product_id, order_id, quantity, price_cents) 
+                            VALUES ($1, $2, $3, $4) 
+                            RETURNING *`,
                             [product.product_id, newOrder.rows[0].id, product.quantity, product.price_cents]
                         )
                     })
@@ -36,7 +40,10 @@ ordersRouter.post('/', async (req, res, next) => {
     
             // Combined result from orders and orders_products
             const orderDetails = await pool.query(
-                'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE orders.id = $1',
+                `SELECT * FROM orders 
+                JOIN orders_products 
+                    ON orders.id = orders_products.order_id 
+                WHERE orders.id = $1`,
                 [newOrder.rows[0].id]
             );
             console.log('Placed order details', orderDetails.rows);
@@ -68,7 +75,15 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
 
     try {
         const ordersByUserId = await pool.query(
-            'SELECT orders.id, orders.status, SUM(orders_products.quantity) AS product_count, SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders JOIN orders_products ON orders.id = orders_products.order_id WHERE customer_id = $1 GROUP BY orders.id',
+            `SELECT orders.id, 
+                    orders.status, 
+                    SUM(orders_products.quantity) AS product_count, 
+                    SUM(orders_products.price_cents * orders_products.quantity) AS total_price 
+            FROM orders 
+            JOIN orders_products 
+                ON orders.id = orders_products.order_id 
+            WHERE customer_id = $1 
+            GROUP BY orders.id`,
             [userId]
         );
         res.status(200).send({ orders: ordersByUserId.rows });
@@ -100,24 +115,22 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
         } else {
             // Order ID found
             const orderItems = await pool.query(
-                // 'SELECT * FROM orders JOIN orders_products ON orders.id = orders_products.order_id JOIN products ON orders_products.product_id = products.id WHERE orders.id = $1',
                 `SELECT orders.customer_id, 
                         products.id AS product_id, 
                         products.name, 
                         products.brand, 
                         products.price_cents, 
                         orders_products.quantity 
-                    FROM orders 
-                    JOIN orders_products 
-                        ON orders.id = orders_products.order_id 
-                    JOIN products 
-                        ON orders_products.product_id = products.id 
-                    WHERE orders.id = $1`,
+                FROM orders 
+                JOIN orders_products 
+                    ON orders.id = orders_products.order_id 
+                JOIN products 
+                    ON orders_products.product_id = products.id 
+                WHERE orders.id = $1`,
                 [orderId]
             );
             console.log(orderItems);
             const orderDetails = await pool.query(
-                // 'SELECT SUM(orders_products.price_cents * orders_products.quantity) AS total_price FROM orders_products WHERE order_id = $1',
                 `SELECT orders.placed_at,
                         orders.status AS order_status,
                         SUM(orders_products.price_cents * orders_products.quantity) AS total_price
@@ -132,7 +145,6 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
             if (orderItems.rows.length === 0 || orderDetails.rows.length === 0) {
                 return res.status(400).send('Failed to receive order details');
             }
-            // res.status(200).send({ orderDetails: orderDetails.rows });
             res.status(200).send({ 
                 orderId: orderId,
                 items: orderItems.rows,
