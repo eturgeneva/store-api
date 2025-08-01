@@ -52,7 +52,7 @@ CREATE TABLE carts_products (
 -- Wishlist
 CREATE TABLE wishlists (
     id SERIAL PRIMARY KEY,
-    customer_id INTEGER REFERENCES customers(id),
+    customer_id INTEGER REFERENCES customers(id)
 );
 
 CREATE TABLE wishlists_products (

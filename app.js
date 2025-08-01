@@ -272,6 +272,10 @@ app.use('/carts', cartsRouter);
 const ordersRouter = require('./ordersRouter.js');
 app.use('/orders', ordersRouter);
 
+// Wishlists
+const wishlistsRouter = require('./wishlistsRouter.js');
+app.use('/wishlists', wishlistsRouter);
+
 
 function logReqestStatus(req, res, next) {
     if (req) {
