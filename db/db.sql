@@ -49,6 +49,17 @@ CREATE TABLE carts_products (
     quantity INTEGER
 );
 
+-- Wishlist
+CREATE TABLE wishlists (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(id),
+);
+
+CREATE TABLE wishlists_products (
+    wishlist_id INTEGER REFERENCES wishlists(id),
+    product_id INTEGER REFERENCES products(id)
+);
+
 -- Importing a products csv (via psql)
 COPY products (name, brand, price_cents)
 FROM './db_products.csv'
