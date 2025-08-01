@@ -592,6 +592,40 @@ paths:
     #       description: Internal Server Error
     #   tags:
     #     - Cart
+  /wishlists:
+    post:
+      summary: Create a new wishlist
+      description: >-
+        Creates a new, empty wishlist for a user. This might involve
+        generating a unique wishlist ID and associating it with the user 
+        through user ID).
+      operationId: createWishlist
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                Message:
+                  value:
+                    { wishlistId: id }
+          description: Success
+        '400':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Invalid Argument
+          description: Invalid Argument Provided
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - Wishlist
+  
   /wishlists/{userId}:
     get:
       summary: Get a user wishlist
@@ -629,6 +663,7 @@ paths:
           description: Internal Server Error
       tags:
         - Wishlist
+        
     put:
       summary: Update Wishlist
       description: >-
