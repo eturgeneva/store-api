@@ -117,7 +117,7 @@ paths:
           description: Internal Server Error
       tags:
         - Order
-  /orders/user/{userId}:
+  /orders/users/{userId}:
     summary: Get all orders placed by a user
     description: This path is used to get all orders made by a soecific user from the database.
     get:
@@ -341,7 +341,7 @@ paths:
               examples:
                 Error:
                   value: Not found
-          description: User not foun
+          description: User not found
         '500':
           content:
             text/plain; charset=utf-8:
@@ -540,7 +540,7 @@ paths:
               examples:
                 Error:
                   value: Not found
-          description: User not foun
+          description: User not found
         '500':
           content:
             text/plain; charset=utf-8:
@@ -550,24 +550,116 @@ paths:
           description: Internal Server Error
       tags:
         - Cart
-    delete:
-      summary: Delete cart
-      description: Deletes the entire cart from the carts database
-      operationId: deleteCart
+    # delete:
+    #   summary: Delete cart
+    #   description: Deletes the entire cart from the carts database
+    #   operationId: deleteCart
+    #   parameters:
+    #     - name: cartId
+    #       in: path
+    #       description: The id of the cart.
+    #       required: true
+    #       schema:
+    #         type: string
+    #   responses:
+    #     '204':
+    #       content:
+    #         text/plain; charset=utf-8:
+    #           examples:
+    #             Message:
+    #               value: Success
+    #       description: Success
+    #     '400':
+    #       content:
+    #         text/plain; charset=utf-8:
+    #           examples:
+    #             Error:
+    #               value: Invalid Argument
+    #       description: Invalid Argument Provided
+    #     '404':
+    #       content:
+    #         text/plain; charset=utf-8:
+    #           examples:
+    #             Error:
+    #               value: Not found
+    #       description: Cart not found
+    #     '500':
+    #       content:
+    #         text/plain; charset=utf-8:
+    #           examples:
+    #             Error:
+    #               value: Server Error
+    #       description: Internal Server Error
+    #   tags:
+    #     - Cart
+  /wishlists/{userId}:
+    get:
+      summary: Get a user wishlist
+      description: >- 
+        Retrieves the contents of a wishlist, including the items and potentially other related information like pricing.
+      operationId: getWishlist
       parameters:
-        - name: cartId
+        - name: userId
           in: path
-          description: The id of the cart.
+          description: The id of the user.
           required: true
           schema:
             type: string
       responses:
-        '204':
+        '200':
+          content:
+            application/json:
+              examples:
+                wishlist:
+                  value: {}
+          description: Success
+        '404':
           content:
             text/plain; charset=utf-8:
               examples:
-                Message:
-                  value: Success
+                Error:
+                  value: Not found
+          description: Wishlist not found
+        '500':
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Error:
+                  value: Server Error
+          description: Internal Server Error
+      tags:
+        - Wishlist
+    put:
+      summary: Update Wishlist
+      description: >-
+        Modifies an existing wishlist. This could involve adding a
+        new item or removing an
+        item.
+      operationId: updateWishlist
+      parameters:
+        - name: userId
+          in: path
+          description: The id of the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                wishlist:
+                  value:  {"products": [
+                            {
+                                "cart_id": 51,
+                                "product_id": 2,
+                                "quantity": 1,
+                                "id": 2,
+                                "name": "tiger",
+                                "brand": "Plushie Luv",
+                                "price_cents": 1599
+                            }
+                          ]}
           description: Success
         '400':
           content:
@@ -582,7 +674,7 @@ paths:
               examples:
                 Error:
                   value: Not found
-          description: Cart not found
+          description: Wishlist not found
         '500':
           content:
             text/plain; charset=utf-8:
@@ -591,7 +683,7 @@ paths:
                   value: Server Error
           description: Internal Server Error
       tags:
-        - Cart
+        - Wishlist
 components:
   schemas:
     Order:
