@@ -157,6 +157,45 @@ ordersRouter.get('/:orderId', async (req, res, next) => {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
+});
+
+// Cancel an order by ID
+ordersRouter.delete('/:orderId', async (req, res, next) => {
+    const orderId = req.body.orderId;
+
+    if (orderId <= 0) {
+        return res.status(400).send('Invalid order id');
+    }
+    try {
+        // Check if order exists
+        const checkOrderId = await pool.query(
+            'SELECT * FROM orders WHERE id = $1',
+            [orderId]
+        )
+        // Order ID not found
+        if (checkOrderId.rows.length !== 1) {
+            return res.status(404).send('No order with this ID found');
+
+        // The order is found, but is already cancelled
+        } else if (checkOrderId.rows[0].status === 'cancelled') {
+            return res.status(400).send('The order is already cancelled');
+
+        } else {
+            const orderStatusUpdate = await pool.query(
+                'UPDATE orders SET status = $1 WHERE id = $2',
+                ['cancelled', orderId]
+            );
+            if (orderStatusUpdate.rowCount !== 1) {
+                return res.status(400).send('Failed to update order');
+            }
+            res.status(200).send('The order has been cancelled');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+
+
 })
 
 module.exports = ordersRouter;
