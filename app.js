@@ -13,7 +13,8 @@ const bcrypt = require('bcrypt');
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  // origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true
 }));
 app.use(express.json());
@@ -184,6 +185,7 @@ app.get('/oauth2/redirect/google',
       pool.query('UPDATE carts SET customer_id = $1 WHERE id = $2', [req.user.id, req.cartId]);
     }
     res.redirect('http://localhost:5173/profile');
+    // res.redirect('http://localhost:5174/profile');
 });
 
 // User registration
