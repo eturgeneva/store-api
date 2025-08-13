@@ -61,10 +61,10 @@ CREATE TABLE wishlists_products (
 );
 
 -- Importing a products csv (via psql)
-COPY products (name, brand, price_cents)
-FROM './db_products.csv'
-DELIMITER ','
-CSV HEADER;
+-- COPY products (name, brand, price_cents)
+-- FROM './db_products.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
 -- Or try this
 \copy products (name, brand, price_cents) FROM './db_products.csv' DELIMITER ',' CSV HEADER;
