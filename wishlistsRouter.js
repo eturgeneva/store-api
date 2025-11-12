@@ -51,6 +51,50 @@ wishlistsRouter.post('/', async (req, res, next) => {
     }
 });
 
+// Update a wishlist:
+// Each user has only 1 wishlist
+wishlistsRouter.put('/', async (req, res, next) => {
+    const userId = req.user.id;
+    // Check later
+    const productId = req.productId;
+    const wishlistId = req.wishlistId;
+
+    if (!userId) {
+        return res.status(400).send('Unable to update a wishlist without user ID');
+    } 
+    try {
+        const foundWishlist = await pool.query(
+            `SELECT * FROM wishlists
+            WHERE customer_id = $1`,
+            [userId]
+        )
+        if (foundWishlist) {
+            const wishlistUpdate = await pool.query(
+                `INSERT INTO wishlists_products (product_id)
+                VALUES ($1)
+                RETURNING *`,
+                [productId]
+            )
+            if (wishlistUpdate.rows.length !== 1) {
+                res.status(500).send('Failed to update wishlist')
+            }
+
+            const joinedWishlistUpdate = pool.query(
+                `SELECT * FROM wishlists
+                JOIN products_wishlists
+                ON wishlists.id = products_wishlists.wishlist_id
+                WHERE wishlists.id = $1`,
+                [wishlistId]
+            )
+            res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error' + err)
+    }
+    
+});
+
 // Get a user wishlist
 wishlistsRouter.get('/', async (req, res, next) => {
     const userId = req.user.id;
