@@ -56,8 +56,10 @@ wishlistsRouter.post('/', async (req, res, next) => {
 wishlistsRouter.put('/', async (req, res, next) => {
     const userId = req.user.id;
     // Check later
-    const productId = req.productId;
-    const wishlistId = req.wishlistId;
+    const productId = req.body.productId;
+    // const wishlistId = req.wishlistId;
+    console.log('product id in wishlist', productId)
+    console.log('update wishlist request', req)
 
     if (!userId) {
         return res.status(400).send('Unable to update a wishlist without user ID');
@@ -69,11 +71,12 @@ wishlistsRouter.put('/', async (req, res, next) => {
             [userId]
         )
         if (foundWishlist) {
+            const wishlistId = foundWishlist.rows[0].id;
             const wishlistUpdate = await pool.query(
-                `INSERT INTO wishlists_products (product_id)
-                VALUES ($1)
+                `INSERT INTO wishlists_products (product_id, wishlist_id)
+                VALUES ($1, $2)
                 RETURNING *`,
-                [productId]
+                [productId, wishlistId]
             )
             if (wishlistUpdate.rows.length !== 1) {
                 res.status(500).send('Failed to update wishlist')
