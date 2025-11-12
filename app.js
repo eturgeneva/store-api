@@ -276,7 +276,7 @@ app.use('/orders', ordersRouter);
 
 // Wishlists
 const wishlistsRouter = require('./wishlistsRouter.js');
-app.use('/wishlists', checkIfAuthenticated, wishlistsRouter);
+app.use('/wishlist', checkIfAuthenticated, wishlistsRouter);
 
 
 function logReqestStatus(req, res, next) {
