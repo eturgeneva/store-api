@@ -86,16 +86,19 @@ wishlistsRouter.put('/', async (req, res, next) => {
             //     `SELECT * FROM wishlists
             //     JOIN wishlists_products
             //     ON wishlists.id = wishlists_products.wishlist_id
-            //     WHERE wishlists.id = $1`,
-            //     [wishlistId]
+            //     WHERE wishlists.customer_id = $1`,
+            //     [userId]
             // )
-            const joinedWishlistUpdate = pool.query(
+            const joinedWishlistUpdate = await pool.query(
                 `SELECT * FROM wishlists
                 JOIN wishlists_products
                 ON wishlists.id = wishlists_products.wishlist_id
+                JOIN products
+                ON products.id = wishlists_products.product_id
                 WHERE wishlists.customer_id = $1`,
                 [userId]
             )
+
             console.log('joinedWishlistUpdate.rows', joinedWishlistUpdate.rows)
             res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
         }
@@ -125,6 +128,8 @@ wishlistsRouter.get('/', async (req, res, next) => {
                 `SELECT * FROM wishlists
                 JOIN wishlists_products
                 ON wishlists.id = wishlists_products.wishlist_id
+                JOIN products
+                ON products.id = wishlists_products.product_id
                 WHERE customer_id = $1`,
                 [userId]
             );
