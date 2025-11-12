@@ -81,8 +81,8 @@ wishlistsRouter.put('/', async (req, res, next) => {
 
             const joinedWishlistUpdate = pool.query(
                 `SELECT * FROM wishlists
-                JOIN products_wishlists
-                ON wishlists.id = products_wishlists.wishlist_id
+                JOIN wishlists_products
+                ON wishlists.id = wishlists_products.wishlist_id
                 WHERE wishlists.id = $1`,
                 [wishlistId]
             )
