@@ -79,13 +79,21 @@ wishlistsRouter.put('/', async (req, res, next) => {
                 res.status(500).send('Failed to update wishlist')
             }
 
+            // const joinedWishlistUpdate = pool.query(
+            //     `SELECT * FROM wishlists
+            //     JOIN wishlists_products
+            //     ON wishlists.id = wishlists_products.wishlist_id
+            //     WHERE wishlists.id = $1`,
+            //     [wishlistId]
+            // )
             const joinedWishlistUpdate = pool.query(
                 `SELECT * FROM wishlists
                 JOIN wishlists_products
                 ON wishlists.id = wishlists_products.wishlist_id
-                WHERE wishlists.id = $1`,
-                [wishlistId]
+                WHERE wishlists.customer_id = $1`,
+                [userId]
             )
+            console.log('joinedWishlistUpdate.rows', joinedWishlistUpdate.rows)
             res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
         }
     } catch (err) {
