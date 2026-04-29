@@ -77,6 +77,7 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
         const ordersByUserId = await pool.query(
             `SELECT orders.id, 
                     orders.status, 
+                    orders.placed_at,
                     SUM(orders_products.quantity) AS product_count, 
                     SUM(orders_products.price_cents * orders_products.quantity) AS total_price 
             FROM orders 
@@ -87,6 +88,7 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
             [userId]
         );
         res.status(200).send({ orders: ordersByUserId.rows });
+        console.log(ordersByUserId.rows)
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
