@@ -70,37 +70,54 @@ wishlistsRouter.put('/', async (req, res, next) => {
             WHERE customer_id = $1`,
             [userId]
         )
+        console.log('found wishlist', foundWishlist)
+
+        // const wishlistContent = await pool.query(
+        //     `SELECT * FROM wishlists_products
+        //     WHERE wishlist_id = $1`,
+        //     [foundWishlist.rows[0].id]
+        // )
+        // console.log('already in wishlist', wishlistContent)
+
+        // const alreadyInWishlist = wishlistContent.rows.every((item) => item.product_id !== productId)
+
         if (foundWishlist) {
             const wishlistId = foundWishlist.rows[0].id;
-            const wishlistUpdate = await pool.query(
-                `INSERT INTO wishlists_products (product_id, wishlist_id)
-                VALUES ($1, $2)
-                RETURNING *`,
-                [productId, wishlistId]
+
+            const wishlistContent = await pool.query(
+                `SELECT * FROM wishlists_products
+                WHERE wishlist_id = $1`,
+                [wishlistId]
             )
-            if (wishlistUpdate.rows.length !== 1) {
-                res.status(500).send('Failed to update wishlist')
+            console.log('already in wishlist', wishlistContent)
+
+            const alreadyInWishlist = wishlistContent.rows.some((item) => item.product_id === productId)
+            
+            if (!alreadyInWishlist) {
+                const wishlistUpdate = await pool.query(
+                    `INSERT INTO wishlists_products (product_id, wishlist_id)
+                    VALUES ($1, $2)
+                    RETURNING *`,
+                    [productId, wishlistId]
+                )
+                if (wishlistUpdate.rows.length !== 1) {
+                    res.status(500).send('Failed to update wishlist')
+                }
+                const joinedWishlistUpdate = await pool.query(
+                    `SELECT * FROM wishlists
+                    JOIN wishlists_products
+                    ON wishlists.id = wishlists_products.wishlist_id
+                    JOIN products
+                    ON products.id = wishlists_products.product_id
+                    WHERE wishlists.customer_id = $1`,
+                    [userId]
+                )
+    
+                console.log('joinedWishlistUpdate.rows', joinedWishlistUpdate.rows)
+                res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
+            } else {
+                return res.status(400).send('Item is already on the wishlist');
             }
-
-            // const joinedWishlistUpdate = pool.query(
-            //     `SELECT * FROM wishlists
-            //     JOIN wishlists_products
-            //     ON wishlists.id = wishlists_products.wishlist_id
-            //     WHERE wishlists.customer_id = $1`,
-            //     [userId]
-            // )
-            const joinedWishlistUpdate = await pool.query(
-                `SELECT * FROM wishlists
-                JOIN wishlists_products
-                ON wishlists.id = wishlists_products.wishlist_id
-                JOIN products
-                ON products.id = wishlists_products.product_id
-                WHERE wishlists.customer_id = $1`,
-                [userId]
-            )
-
-            console.log('joinedWishlistUpdate.rows', joinedWishlistUpdate.rows)
-            res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
         }
     } catch (err) {
         console.error(err);
