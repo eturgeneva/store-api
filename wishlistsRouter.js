@@ -57,9 +57,11 @@ wishlistsRouter.put('/', async (req, res, next) => {
     const userId = req.user.id;
     // Check later
     const productId = req.body.productId;
+    if (!productId) {
+        return res.status(400).send('No product ID provided');
+    }
     // const wishlistId = req.wishlistId;
-    console.log('product id in wishlist', productId)
-    console.log('update wishlist request', req)
+    console.log('product id in wishlist', productId);
 
     if (!userId) {
         return res.status(400).send('Unable to update a wishlist without user ID');
@@ -72,44 +74,46 @@ wishlistsRouter.put('/', async (req, res, next) => {
         )
         console.log('found wishlist', foundWishlist)
 
-        if (foundWishlist) {
-            const wishlistId = foundWishlist.rows[0].id;
-
-            const wishlistContent = await pool.query(
-                `SELECT * FROM wishlists_products
-                WHERE wishlist_id = $1`,
-                [wishlistId]
-            )
-            console.log('already in wishlist', wishlistContent)
-
-            const alreadyInWishlist = wishlistContent.rows.some((item) => item.product_id === productId)
-            
-            if (!alreadyInWishlist) {
-                const wishlistUpdate = await pool.query(
-                    `INSERT INTO wishlists_products (product_id, wishlist_id)
-                    VALUES ($1, $2)
-                    RETURNING *`,
-                    [productId, wishlistId]
-                )
-                if (wishlistUpdate.rows.length !== 1) {
-                    res.status(500).send('Failed to update wishlist')
-                }
-                const joinedWishlistUpdate = await pool.query(
-                    `SELECT * FROM wishlists
-                    JOIN wishlists_products
-                    ON wishlists.id = wishlists_products.wishlist_id
-                    JOIN products
-                    ON products.id = wishlists_products.product_id
-                    WHERE wishlists.customer_id = $1`,
-                    [userId]
-                )
-    
-                console.log('joinedWishlistUpdate.rows', joinedWishlistUpdate.rows)
-                res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
-            } else {
-                return res.status(400).send('Item is already on the wishlist');
-            }
+        if (foundWishlist.rows.length !== 1) {
+            return res.status(404).send('Wishlist not found');
         }
+        const wishlistId = foundWishlist.rows[0].id;
+
+        const wishlistContent = await pool.query(
+            `SELECT * FROM wishlists_products
+            WHERE wishlist_id = $1`,
+            [wishlistId]
+        )
+        console.log('already in wishlist', wishlistContent)
+
+        const alreadyInWishlist = wishlistContent.rows.some((item) => item.product_id === Number(productId))
+        
+        if (!alreadyInWishlist) {
+            const wishlistUpdate = await pool.query(
+                `INSERT INTO wishlists_products (product_id, wishlist_id)
+                VALUES ($1, $2)
+                RETURNING *`,
+                [productId, wishlistId]
+            )
+            if (wishlistUpdate.rows.length !== 1) {
+                return res.status(500).send('Failed to update wishlist')
+            }
+            const joinedWishlistUpdate = await pool.query(
+                `SELECT * FROM wishlists
+                JOIN wishlists_products
+                ON wishlists.id = wishlists_products.wishlist_id
+                JOIN products
+                ON products.id = wishlists_products.product_id
+                WHERE wishlists.customer_id = $1`,
+                [userId]
+            )
+
+            console.log('joinedWishlistUpdate.rows', joinedWishlistUpdate.rows)
+            res.status(200).send({ wishlistUpdate: joinedWishlistUpdate.rows })
+        } else {
+            return res.status(400).send('Item is already on the wishlist');
+        }
+
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error' + err)
@@ -169,13 +173,15 @@ wishlistsRouter.delete('/', async (req, res, next) => {
         );
         console.log('wishlistExists', wishlistExists);
 
-        if (!wishlistExists) {
-            return res.status(404).send('Wishlist not found')
+        if (wishlistExists.rows.length !== 1) {
+            return res.status(404).send('Wishlist not found');
         }
+
+        const wishlistId = wishlistExists.rows[0].id;
         const removedProduct = await pool.query(
             `DELETE FROM wishlists_products
-            WHERE product_id = $1`,
-            [productId]
+            WHERE wishlist_id = $1 AND product_id = $2`,
+            [wishlistId, productId]
         );
 
         if (removedProduct.rowCount !== 1) {
@@ -188,12 +194,12 @@ wishlistsRouter.delete('/', async (req, res, next) => {
             ON wishlists.id = wishlists_products.wishlist_id
             JOIN products
             ON products.id = wishlists_products.product_id
-            WHERE customer_id = $1`,
+            WHERE wishlists.customer_id = $1`,
             [userId]
         );
         console.log('updated wishlist', updatedWishlist);
         res.status(200).send({ updatedWishlist: updatedWishlist.rows });
-        
+
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error' + err);
