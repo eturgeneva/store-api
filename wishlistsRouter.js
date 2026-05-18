@@ -72,15 +72,6 @@ wishlistsRouter.put('/', async (req, res, next) => {
         )
         console.log('found wishlist', foundWishlist)
 
-        // const wishlistContent = await pool.query(
-        //     `SELECT * FROM wishlists_products
-        //     WHERE wishlist_id = $1`,
-        //     [foundWishlist.rows[0].id]
-        // )
-        // console.log('already in wishlist', wishlistContent)
-
-        // const alreadyInWishlist = wishlistContent.rows.every((item) => item.product_id !== productId)
-
         if (foundWishlist) {
             const wishlistId = foundWishlist.rows[0].id;
 
@@ -139,7 +130,7 @@ wishlistsRouter.get('/', async (req, res, next) => {
             [userId]
         );
         if (checkUserId.rows.length !== 1) {
-            return res.status(404).send('No user found');
+            return res.status(404).send('User not found');
         } else {
             const wishlist = await pool.query(
                 `SELECT * FROM wishlists
@@ -152,6 +143,57 @@ wishlistsRouter.get('/', async (req, res, next) => {
             );
             res.status(200).send(wishlist.rows);
         }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error' + err);
+    }
+});
+
+// Delete an item (by ID) from a wishlist (by ID)
+wishlistsRouter.delete('/', async (req, res, next) => {
+    const userId = req.user.id;
+    const productId = req.body.productId;
+
+    if (!userId) {
+        return res.status(400).send('No user ID provided');
+    }
+    if (!productId) {
+        return res.status(400).send('No product ID provided');
+    }
+
+    try {
+        const wishlistExists = await pool.query(
+            `SELECT * FROM wishlists
+            WHERE customer_id = $1`,
+            [userId]
+        );
+        console.log('wishlistExists', wishlistExists);
+
+        if (!wishlistExists) {
+            return res.status(404).send('Wishlist not found')
+        }
+        const removedProduct = await pool.query(
+            `DELETE FROM wishlists_products
+            WHERE product_id = $1`,
+            [productId]
+        );
+
+        if (removedProduct.rowCount !== 1) {
+            return res.status(400).send('Failed to remove product from wishlist');
+        }
+        // Updated wishlist
+        const updatedWishlist = await pool.query(
+            `SELECT * FROM wishlists
+            JOIN wishlists_products
+            ON wishlists.id = wishlists_products.wishlist_id
+            JOIN products
+            ON products.id = wishlists_products.product_id
+            WHERE customer_id = $1`,
+            [userId]
+        );
+        console.log('updated wishlist', updatedWishlist);
+        res.status(200).send({ updatedWishlist: updatedWishlist.rows });
+        
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error' + err);
