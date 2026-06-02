@@ -550,48 +550,6 @@ paths:
           description: Internal Server Error
       tags:
         - Cart
-    # delete:
-    #   summary: Delete cart
-    #   description: Deletes the entire cart from the carts database
-    #   operationId: deleteCart
-    #   parameters:
-    #     - name: cartId
-    #       in: path
-    #       description: The id of the cart.
-    #       required: true
-    #       schema:
-    #         type: string
-    #   responses:
-    #     '204':
-    #       content:
-    #         text/plain; charset=utf-8:
-    #           examples:
-    #             Message:
-    #               value: Success
-    #       description: Success
-    #     '400':
-    #       content:
-    #         text/plain; charset=utf-8:
-    #           examples:
-    #             Error:
-    #               value: Invalid Argument
-    #       description: Invalid Argument Provided
-    #     '404':
-    #       content:
-    #         text/plain; charset=utf-8:
-    #           examples:
-    #             Error:
-    #               value: Not found
-    #       description: Cart not found
-    #     '500':
-    #       content:
-    #         text/plain; charset=utf-8:
-    #           examples:
-    #             Error:
-    #               value: Server Error
-    #       description: Internal Server Error
-    #   tags:
-    #     - Cart
   /wishlists:
     post:
       summary: Create a new wishlist
