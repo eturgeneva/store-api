@@ -98,7 +98,6 @@ ordersRouter.get('/users/:userId', async (req, res, next) => {
 
 // Get an order by ID
 ordersRouter.get('/:orderId', async (req, res, next) => {
-    // const orderId = req.body.orderId;
     const orderId = req.params.orderId;
     console.log('Req params orderId', orderId);
 

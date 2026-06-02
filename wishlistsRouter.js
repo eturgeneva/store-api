@@ -28,7 +28,6 @@ wishlistsRouter.post('/', async (req, res, next) => {
                 [userId]
             );
             if (checkUserWishlist.rows.length === 1) {
-                // return res.status(400).send('The user already has a wishlist');
                 return res.status(200).send({ wishlistId: checkUserWishlist.rows[0].id });
             }
             
@@ -60,7 +59,7 @@ wishlistsRouter.put('/', async (req, res, next) => {
     if (!productId) {
         return res.status(400).send('No product ID provided');
     }
-    // const wishlistId = req.wishlistId;
+    
     console.log('product id in wishlist', productId);
 
     if (!userId) {

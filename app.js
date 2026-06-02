@@ -13,15 +13,12 @@ const bcrypt = require('bcrypt');
 const app = express();
 
 app.use(cors({
-  // origin: 'http://localhost:5173',
   origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Passport needs the session middleware to be initialized first, otherwise req.isAuthenticated() and req.user won’t work properly across requests.
-// Session middleware:
 app.use(	
   session({	
     secret: process.env.SESSION_SECRET,
@@ -29,8 +26,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Change to true in production with HTTPS
-      sameSite: 'lax' // or 'none' if frontend and backend are on different origins
+      secure: false,
+      sameSite: 'lax'
   }	
   })	
 );	
@@ -169,10 +166,8 @@ app.post('/login', (req, res, next) => {
 });
 
 // User login Google OAuth 2.0
-// redirects the user to the Google, where they will authenticate
 app.get('/login/google', passport.authenticate('google'));
 
-// processes the authentication response and logs the user in, after Google redirects the user back to the app
 app.get('/oauth2/redirect/google',
   (req, res, next) => {
     req.cartId = req.session.cartId;
@@ -185,7 +180,6 @@ app.get('/oauth2/redirect/google',
       pool.query('UPDATE carts SET customer_id = $1 WHERE id = $2', [req.user.id, req.cartId]);
     }
     res.redirect('http://localhost:5173/profile');
-    // res.redirect('http://localhost:5174/profile');
 });
 
 // User registration
