@@ -177,7 +177,7 @@ app.get('/oauth2/redirect/google',
       req.session.cartId = req.cartId;
       pool.query('UPDATE carts SET customer_id = $1 WHERE id = $2', [req.user.id, req.cartId]);
     }
-    res.redirect('http://localhost:5173/profile');
+    res.redirect(`${FRONTEND_BASE_URL}/profile`);
 });
 
 // User registration
